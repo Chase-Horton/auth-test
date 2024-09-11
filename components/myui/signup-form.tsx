@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormLabel, FormItem, FormField, FormMessage } from "@/components/ui/form"
-import { set, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { signupSchema } from "@/lib/schemas"
 import { z } from "zod"
 import { FormError } from "./form-error"

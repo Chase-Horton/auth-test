@@ -11,16 +11,13 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormLabel, FormItem, FormField, FormMessage } from "@/components/ui/form"
-import { set, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { loginSchema } from "@/lib/schemas"
 import { z } from "zod"
 import { FormError } from "./form-error"
 import { FormSuccess } from "./form-success"
 import { login } from "@/actions/login"
 import { useState, useTransition } from "react"
-import { signIn } from "next-auth/react"
-import { DEFAULT_LOGIN_REDIRECT } from "@/routes"
-import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import SignInButton from "./google-signin-button"
 export function LoginForm() {
     const form = useForm<z.infer<typeof loginSchema>>({

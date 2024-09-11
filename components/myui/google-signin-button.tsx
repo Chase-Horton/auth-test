@@ -6,7 +6,8 @@ interface SignInButtonProps {
     isPending: boolean;
     message: string;
     provider: string;
-    startTransition: Function
+    //function that returns void
+    startTransition: (callback: () => void) => void;
 }
 export default function SignInButton(props: SignInButtonProps) {
     const onLogonClick = () => {

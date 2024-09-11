@@ -18,7 +18,10 @@ import { FormError } from "./form-error"
 import { FormSuccess } from "./form-success"
 import { login } from "@/actions/login"
 import { useState, useTransition } from "react"
-import { redirect } from "next/navigation"
+import { signIn } from "next-auth/react"
+import { DEFAULT_LOGIN_REDIRECT } from "@/routes"
+import { GitHubLogoIcon } from "@radix-ui/react-icons"
+import SignInButton from "./google-signin-button"
 export function LoginForm() {
     const form = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
@@ -40,7 +43,6 @@ export function LoginForm() {
         });
     }
     return (
-        <div className="dark">
         <Card className="mx-auto max-w-sm">
             <CardHeader>
                 <CardTitle className="text-2xl">Login</CardTitle>
@@ -101,9 +103,7 @@ export function LoginForm() {
                             <Button type="submit" className="w-full" disabled={isPending}>
                                 Login
                             </Button>
-                            <Button variant="outline" className="w-full" disabled={isPending}>
-                                Login with Google
-                            </Button>
+                            <SignInButton isPending={isPending} message="Sign in with Google" provider="google" startTransition={startTransition} />
                         </div>
                         <div className="mt-4 text-center text-sm">
                             Don&apos;t have an account?{" "}
@@ -115,6 +115,5 @@ export function LoginForm() {
                 </Form>
             </CardContent>
         </Card>
-        </div>
     )
 }

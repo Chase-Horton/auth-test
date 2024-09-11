@@ -18,6 +18,7 @@ import { FormError } from "./form-error"
 import { FormSuccess } from "./form-success"
 import { register } from "@/actions/register"
 import { useState, useTransition } from "react"
+import SignInButton from "./google-signin-button"
 
 export function SignUpForm() {
     const form = useForm<z.infer<typeof signupSchema>>({
@@ -40,7 +41,6 @@ export function SignUpForm() {
         });
     }
     return (
-        <div className="dark">
         <Card className="mx-auto max-w-sm">
             <CardHeader>
                 <CardTitle className="text-2xl">Register</CardTitle>
@@ -135,9 +135,7 @@ export function SignUpForm() {
                             <Button type="submit" className="w-full" disabled={isPending}>
                                 Sign Up
                             </Button>
-                            <Button variant="outline" className="w-full" disabled={isPending}>
-                                Sign Up with Google
-                            </Button>
+                            <SignInButton isPending={isPending} message="Sign up with Google" provider="google" startTransition={startTransition} />
                         </div>
                         <div className="mt-4 text-center text-sm">
                             Already have an account?{" "}
@@ -149,6 +147,5 @@ export function SignUpForm() {
                 </Form>
             </CardContent>
         </Card>
-        </div>
     )
 }

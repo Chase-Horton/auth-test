@@ -227,22 +227,6 @@ export default function QueryDashboard() {
                             </div>
                           </div>
                         </SelectItem>
-                        <SelectItem value="quantum">
-                          <div className="flex items-start gap-3 text-muted-foreground">
-                            <Turtle className="size-5" />
-                            <div className="grid gap-0.5">
-                              <p>
-                                Neural{" "}
-                                <span className="font-medium text-foreground">
-                                  Quantum
-                                </span>
-                              </p>
-                              <p className="text-xs" data-description>
-                                The most powerful model for complex computations.
-                              </p>
-                            </div>
-                          </div>
-                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

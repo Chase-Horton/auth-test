@@ -63,7 +63,7 @@ export default function ReactMapBoxMap(props:ReactMapBoxMapProps){
                 {...viewport}
                 mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
                 mapStyle="mapbox://styles/videoscope/cl3ddmsj5007p14rqsxk5nduc"
-                style={{ borderRadius: "0.5rem"}}
+                style={{ borderRadius: "0.9rem"}}
                 onMove={evt => setViewport(evt.viewState)}
             >
             {/*<Source id="my-data" type="geojson" data={geojson}>

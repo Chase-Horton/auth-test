@@ -2,7 +2,7 @@ import { z } from "zod";
 export type cdeAgenciesResponse = {
     ori:string,
     agency_name:string,
-    agency_id:string,
+    agency_id:number,
     state_name:string,
     state_abbr:string,
     division_name:string,
@@ -11,9 +11,9 @@ export type cdeAgenciesResponse = {
     country_name:string,
     agency_type_name:string,
     nibrs:boolean,
-    nibrs_start_date:Date
-    latitude:number,
-    longitude:number
+    nibrs_start_date:string
+    latitude:string,
+    longitude:string
 }
 const validStateCodes = [
     "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
@@ -27,3 +27,8 @@ export const GetAgencyByStateSchema = z.object({
       message: `Invalid state code`,
     }),
   });
+export type MarkerData = {
+    latitude:number;
+    longitude:number;
+    description:string;
+}

@@ -44,6 +44,9 @@ importers:
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
+      '@types/geojson':
+        specifier: ^7946.0.14
+        version: 7946.0.14
       bcrypt:
         specifier: ^5.1.1
         version: 5.1.1

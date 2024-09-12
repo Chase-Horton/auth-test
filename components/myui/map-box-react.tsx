@@ -1,39 +1,75 @@
-import * as React from 'react';
-import Map, {Source, Layer} from 'react-map-gl';
-import {CircleLayerSpecification} from 'react-map-gl';
-import type {FeatureCollection} from 'geojson';
+"use client"
+import "mapbox-gl/dist/mapbox-gl.css"
+import ReactMapGl, { Layer, Marker, Source } from "react-map-gl"
+import {useMemo, useState} from "react"
+import { MarkerData } from "@/lib/schemas/CDE";
+// import { FeatureCollection } from "geojson";
+// import { CircleLayerSpecification } from "mapbox-gl";
 
-const geojson: FeatureCollection = {
-  type: 'FeatureCollection',
-  features: [
-    {type: 'Feature', geometry: {type: 'Point', coordinates: [-122.4, 37.8]}}
-  ]
-};
 
-const layerStyle: CircleLayerSpecification = {
-  id: 'point',
-  type: 'circle',
-  paint: {
-    'circle-radius': 10,
-    'circle-color': '#007cbf'
-  }
-};
-import "mapbox-gl/dist/mapbox-gl.css"; 
-export default function MapBoxReact() {
-  return (
-    <Map
-      mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-      initialViewState={{
-        longitude: -122.4,
-        latitude: 37.8,
-        zoom: 14
-      }}
-      style={{width: "100%", height: "100%"}}
-      mapStyle="mapbox://styles/mapbox/streets-v9"
-    >
-      <Source id="my-data" type="geojson" data={geojson}>
-        <Layer {...layerStyle} />
-      </Source>
-    </Map>
-  );
+
+// const layerStyle: CircleLayerSpecification = {
+//   id: 'point',
+//   type: 'circle',
+//   paint: {
+//     'circle-radius': 10,
+//     'circle-color': '#007cbf'
+//   },
+//   source: 'my-data'
+// };
+interface ReactMapBoxMapProps{
+    markerData: MarkerData[];
+}
+export default function ReactMapBoxMap(props:ReactMapBoxMapProps){
+    const markers = useMemo(() => {
+        console.log("markers", props.markerData);
+        return props.markerData.map((marker: MarkerData) => {
+            return (
+                <Marker 
+                    longitude={marker.longitude}
+                    latitude={marker.latitude}
+                >
+                    <div className="bg-blue-600 w-[15px] h-[15px]" style={{borderRadius:"50%", cursor:"pointer"}}></div>
+                </Marker>
+            )
+        })
+    }, [props.markerData])
+    // const geojson = useMemo(() => {
+    //     return {
+    //         type: 'FeatureCollection',
+    //         features: props.markerData.map((marker: MarkerData) => {
+    //             return {
+    //                 type: 'Feature',
+    //                 geometry: {
+    //                     type: 'Point',
+    //                     coordinates: [marker.longitude, marker.latitude]
+    //                 },
+    //                 properties: {
+    //                     description: marker.description
+    //                 }
+    //             }
+    //         })
+    //     }
+    // }, [props.markerData])
+    const [viewport, setViewport] = useState({
+        latitude: 37.6869,
+        longitude: -97.3300,
+        zoom: 8
+    });
+    return (
+        <div className="w-full h-full rounded-lg">
+            <ReactMapGl
+                {...viewport}
+                mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+                mapStyle="mapbox://styles/videoscope/cl3ddmsj5007p14rqsxk5nduc"
+                style={{ borderRadius: "0.5rem"}}
+                onMove={evt => setViewport(evt.viewState)}
+            >
+            {/*<Source id="my-data" type="geojson" data={geojson}>
+                <Layer {...layerStyle} />
+            </Source>*/}
+            {markers}
+            </ReactMapGl>
+        </div>
+    )
 }

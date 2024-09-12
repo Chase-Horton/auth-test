@@ -29,12 +29,14 @@ import { Textarea } from "@/components/ui/textarea"
 import {
   TooltipProvider,
 } from "@/components/ui/tooltip"
-import MapboxMap from "@/components/myui/map-box"
+
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { GetAgencyByStateSchema } from "@/lib/schemas/CDE"
+import { GetAgencyByStateSchema, MarkerData } from "@/lib/schemas/CDE"
 import { zodResolver } from "@hookform/resolvers/zod"
 import GetAgenciesForm from "./get-agencies-form"
+import { useState, useTransition } from "react"
+import ReactMapBoxMap from "@/components/myui/map-box-react"
 
 export default function QueryDashboard() {
   const form = useForm<z.infer<typeof GetAgencyByStateSchema>>({
@@ -43,7 +45,8 @@ export default function QueryDashboard() {
       stateCode: ""
     },
   });
-
+  const [isPending, startTransition] = useTransition()
+  const [data, setData] = useState<MarkerData[]>([])
   return (
     <TooltipProvider>
       <div className="grid h-screen w-full">
@@ -189,7 +192,7 @@ export default function QueryDashboard() {
                   </legend>
                   <div className="grid gap-3">
                     <Label htmlFor="model">Query</Label>
-                    <Select>
+                    <Select disabled={isPending}>
                       <SelectTrigger
                         id="model"
                         className="items-start [&_[data-description]]:hidden"
@@ -249,14 +252,14 @@ export default function QueryDashboard() {
                     </Select>
                   </div>
                 </fieldset>
-                <GetAgenciesForm />
+                <GetAgenciesForm startTransition={startTransition} isPending={isPending} setData={setData}/>
               </div>
             </div>
             <div className="relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-0 lg:col-span-2">
               <Badge variant="outline" className="absolute right-3 top-3 z-10 bg-secondary">
                 Output
               </Badge>
-              <MapboxMap />
+              <ReactMapBoxMap markerData={data} />
             </div>
           </main>
         </div>

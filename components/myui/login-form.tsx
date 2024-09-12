@@ -18,7 +18,7 @@ import { FormError } from "./form-error"
 import { FormSuccess } from "./form-success"
 import { login } from "@/actions/login"
 import { useState, useTransition } from "react"
-
+import { redirect } from "next/navigation"
 export function LoginForm() {
     const form = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
@@ -34,8 +34,8 @@ export function LoginForm() {
     const onSubmit = (data: z.infer<typeof loginSchema>) => {
         startTransition(() => {
             login(data).then((result) => {
-                setError(result.error)
-                setSuccess(result.success)
+                setError(result?.error ? result?.error : "")
+                setSuccess(result?.success ? result.success : "")
             });
         });
     }

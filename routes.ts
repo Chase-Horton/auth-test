@@ -5,6 +5,8 @@
  */
 export const publicRoutes = [
     "/",
+    "/login",
+    "/register"
 ];
 /**
  * An Array of routes that are used for authentication.

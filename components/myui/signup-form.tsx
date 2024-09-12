@@ -34,8 +34,8 @@ export function SignUpForm() {
     const onSubmit = (data: z.infer<typeof signupSchema>) => {
         startTransition(() => {
             register(data).then((result) => {
-                setError(result.error)
-                setSuccess(result.success)
+                setError(result?.error ? result?.error : "")
+                setSuccess(result?.success ? result.success : "")
             });
         });
     }

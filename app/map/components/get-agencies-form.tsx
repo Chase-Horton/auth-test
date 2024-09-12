@@ -128,7 +128,7 @@ export default function GetAgenciesForm(props: AgencyFormProps) {
                     </PopoverTrigger>
                     <PopoverContent className="w-[400px] p-0">
                       <Command>
-                        <CommandInput placeholder="Search language..." />
+                        <CommandInput placeholder="Search state..." />
                         <CommandList>
                           <CommandEmpty>No states found.</CommandEmpty>
                           <CommandGroup>

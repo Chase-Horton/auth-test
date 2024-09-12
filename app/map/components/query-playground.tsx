@@ -30,23 +30,18 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip"
 
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { GetAgencyByStateSchema, MarkerData } from "@/lib/schemas/CDE"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { CrimeDataGraph, MarkerData } from "@/lib/schemas/CDE"
 import GetAgenciesForm from "./get-agencies-form"
 import { useState, useTransition } from "react"
 import ReactMapBoxMap from "@/components/myui/map-box-react"
+import GetNationalCrimeForm from "./get-national-crime-form"
+import GraphPanel from "./graph-panel"
 
 export default function QueryDashboard() {
-  const form = useForm<z.infer<typeof GetAgencyByStateSchema>>({
-    resolver: zodResolver(GetAgencyByStateSchema),
-    defaultValues: {
-      stateCode: ""
-    },
-  });
+  const [queryState, setQueryState] = useState<string>("")
   const [isPending, startTransition] = useTransition()
   const [data, setData] = useState<MarkerData[]>([])
+  const [graphData, setGraphData] = useState<CrimeDataGraph[]>([])
   return (
     <TooltipProvider>
       <div className="grid h-screen w-full">
@@ -192,7 +187,7 @@ export default function QueryDashboard() {
                   </legend>
                   <div className="grid gap-3">
                     <Label htmlFor="model">Query</Label>
-                    <Select disabled={isPending}>
+                    <Select disabled={isPending} onValueChange={(value) => setQueryState(value)}>
                       <SelectTrigger
                         id="model"
                         className="items-start [&_[data-description]]:hidden"
@@ -216,18 +211,18 @@ export default function QueryDashboard() {
                             </div>
                           </div>
                         </SelectItem>
-                        <SelectItem value="explorer">
+                        <SelectItem value="selectNationalCrime">
                           <div className="flex items-start gap-3 text-muted-foreground">
                             <Bird className="size-5" />
                             <div className="grid gap-0.5">
                               <p>
-                                Neural{" "}
+                                GET{" "}
                                 <span className="font-medium text-foreground">
-                                  Explorer
+                                  national crime
                                 </span>
                               </p>
                               <p className="text-xs" data-description>
-                                Performance and speed for efficiency.
+                                  Get national crime data by crime name
                               </p>
                             </div>
                           </div>
@@ -252,14 +247,16 @@ export default function QueryDashboard() {
                     </Select>
                   </div>
                 </fieldset>
-                <GetAgenciesForm startTransition={startTransition} isPending={isPending} setData={setData}/>
+                {queryState == "selectAgency" && <GetAgenciesForm startTransition={startTransition} isPending={isPending} setData={setData}/> }
+                {queryState == "selectNationalCrime" && <GetNationalCrimeForm startTransition={startTransition} isPending={isPending} setData={setGraphData}/> }
               </div>
             </div>
             <div className="relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-0 lg:col-span-2">
               <Badge variant="outline" className="absolute right-3 top-3 z-10 bg-secondary">
                 Output
               </Badge>
-              <ReactMapBoxMap markerData={data} />
+              {queryState == "selectAgency" &&<ReactMapBoxMap markerData={data} />}
+              {queryState == "selectNationalCrime" && <GraphPanel graphData={graphData}/>}
             </div>
           </main>
         </div>

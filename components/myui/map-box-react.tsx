@@ -1,6 +1,6 @@
 "use client"
 import "mapbox-gl/dist/mapbox-gl.css"
-import ReactMapGl, { Layer, Marker, Source } from "react-map-gl"
+import ReactMapGl, { Marker } from "react-map-gl"
 import {useMemo, useState} from "react"
 import { MarkerData } from "@/lib/schemas/CDE";
 // import { FeatureCollection } from "geojson";
@@ -23,11 +23,12 @@ interface ReactMapBoxMapProps{
 export default function ReactMapBoxMap(props:ReactMapBoxMapProps){
     const markers = useMemo(() => {
         console.log("markers", props.markerData);
-        return props.markerData.map((marker: MarkerData) => {
+        return props.markerData.map((marker: MarkerData, index) => {
             return (
                 <Marker 
                     longitude={marker.longitude}
                     latitude={marker.latitude}
+                    key={index}
                 >
                     <div className="bg-blue-600 w-[15px] h-[15px]" style={{borderRadius:"50%", cursor:"pointer"}}></div>
                 </Marker>

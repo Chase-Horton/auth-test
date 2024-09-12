@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "@/hooks/use-toast"
 import { Form, FormField, FormItem, FormControl, FormMessage, FormLabel, FormDescription } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
@@ -77,8 +76,8 @@ export default function GetAgenciesForm(props: AgencyFormProps) {
         ),
       })
     props.startTransition(async () => {
-      let agencies = await GetAgenciesByStateCode(data);
-      let markers:MarkerData[] = [];
+      const agencies = await GetAgenciesByStateCode(data);
+      const markers:MarkerData[] = [];
       agencies.forEach((agency) => {
         console.log(agency.agency_name, agency.ori);
         console.log(agency.latitude, agency.longitude);
@@ -89,8 +88,8 @@ export default function GetAgenciesForm(props: AgencyFormProps) {
             description: `${agency.agency_name} - ${agency.ori}`
           });
         }
-        props.setData(markers);
       });
+      props.setData(markers);
     });
   }
   return (
@@ -122,7 +121,7 @@ export default function GetAgenciesForm(props: AgencyFormProps) {
                             ? STATES.find(
                               (STATES) => STATES.value === field.value
                             )?.label
-                            : "Select language"}
+                            : "Select a state"}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </FormControl>

@@ -37,6 +37,7 @@ import ReactMapBoxMap from "@/components/myui/map-box-react"
 import GetNationalCrimeForm from "./get-national-crime-form"
 import GraphPanel from "./graph-panel"
 import GraphPicker, { GraphParamterData } from "./graph-picker"
+import GetNationalArrestsForm from "./get-national-arrests-form"
 
 export default function QueryDashboard() {
   const [queryState, setQueryState] = useState<string>("")
@@ -46,6 +47,7 @@ export default function QueryDashboard() {
   const [graphParameterData, setGraphParameterData] = useState<GraphParamterData>({graphType: "bar", allGraphParameters: [
     {showLegend: true, showXAxis: false, showYAxis: false},
     {showLegend: true, showXAxis: false, showYAxis: true},
+    {showLegend: true, showXAxis: false, showYAxis: false},
     {showLegend: true, showXAxis: false, showYAxis: false},
   ]})
   return (
@@ -224,11 +226,27 @@ export default function QueryDashboard() {
                               <p>
                                 GET{" "}
                                 <span className="font-medium text-foreground">
-                                  national crime
+                                  national estimates
                                 </span>
                               </p>
                               <p className="text-xs" data-description>
-                                  Get national crime data by crime name
+                                  Get national estimate for crimes by crime name
+                              </p>
+                            </div>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="selectNationalArrests">
+                          <div className="flex items-start gap-3 text-muted-foreground">
+                            <Bird className="size-5" />
+                            <div className="grid gap-0.5">
+                              <p>
+                                GET{" "}
+                                <span className="font-medium text-foreground">
+                                  national arrests
+                                </span>
+                              </p>
+                              <p className="text-xs" data-description>
+                                  Get national arrests by offense name
                               </p>
                             </div>
                           </div>
@@ -239,7 +257,8 @@ export default function QueryDashboard() {
                 </fieldset>
                 {queryState == "selectAgency" && <GetAgenciesForm startTransition={startTransition} isPending={isPending} setData={setData}/> }
                 {queryState == "selectNationalCrime" && <GetNationalCrimeForm startTransition={startTransition} isPending={isPending} setData={setGraphData} data={graphData}/> }
-                {queryState == "selectNationalCrime" && <GraphPicker setGraphParameterData={setGraphParameterData} graphParameterData={graphParameterData} />}
+                {queryState == "selectNationalArrests" && <GetNationalArrestsForm startTransition={startTransition} isPending={isPending} setData={setGraphData} data={graphData}/> }
+                {queryState != "selectAgency" && <GraphPicker setGraphParameterData={setGraphParameterData} graphParameterData={graphParameterData} />}
               </div>
             </div>
             <div className="relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-0 lg:col-span-2">
@@ -247,7 +266,7 @@ export default function QueryDashboard() {
                 {queryState != "selectNationalCrime" ? "Output" : "victims per 100k"}
               </Badge>
               {queryState == "selectAgency" &&<ReactMapBoxMap markerData={data} />}
-              {queryState == "selectNationalCrime" && <GraphPanel graphData={graphData} graphParameterData={graphParameterData}/>}
+              {queryState != "selectAgency" && <GraphPanel graphData={graphData} graphParameterData={graphParameterData}/>}
             </div>
           </main>
         </div>

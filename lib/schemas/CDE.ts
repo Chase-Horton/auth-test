@@ -82,3 +82,46 @@ export type CrimeDataGraph = {
     crime:string;
     data:CrimeDataNode[];
 }
+export const validArrestOffenseCodes =  [
+  "Aggravated Assault",
+  "All Other Offenses (Except Traffic)",
+  "Arson",
+  "Burglary",
+  "Curfew and Loitering Law Violations",
+  "Disorderly Conduct",
+  "Driving Under the Influence",
+  "Drug Abuse Violations - Grand Total",
+  "Drunkenness",
+  "Embezzlement",
+  "Forgery and Counterfeiting",
+  "Fraud",
+  "Gambling - Total",
+  "Human Trafficking - Commercial Sex Acts",
+  "Human Trafficking - Involuntary Servitude",
+  "Larceny - Theft",
+  "Liquor Laws",
+  "Manslaughter by Negligence",
+  "Motor Vehicle Theft",
+  "Murder and Nonnegligent Manslaughter",
+  "Offenses Against the Family and Children",
+  "Prostitution and Commercialized Vice",
+  "Rape",
+  "Robbery",
+  "Sex Offenses (Except Rape, and Prostitution and Commercialized Vice)",
+  "Simple Assault",
+  "Stolen Property: Buying, Receiving, Possessing",
+  "Suspicion",
+  "Vagrancy",
+  "Vandalism",
+  "Weapons: Carrying, Possessing, Etc."
+]
+export const GetNationalArrestsByCrimeSchema = z.object({
+  offense: z.string().refine(value => validArrestOffenseCodes.includes(value), {
+    message: `Invalid crime code`,
+  }),
+  from: z.coerce.number({errorMap:customErrorMap}).int().min(1979, "Year must be greater than 1978").max(2022, "Year must be before 2023"),
+  to: z.coerce.number({errorMap:customErrorMap}).int().min(1979, "Year must be greater than 1978").max(2022, "Year must be before 2023")
+}).refine(data => data.from < data.to, {
+  message: "End year must be greater than start year.",
+  path: ["to"]
+});

@@ -39,7 +39,7 @@ const item = {
 };
 export default function GraphPicker(props: GraphPickerProps) {
     const [advanced, setAdvanced] = useState(false);
-    const chartTypes = ["bar", "line", "area"];
+    const chartTypes = ["bar", "line", "area", "barStack"];
     const indexOfType = chartTypes.indexOf(props.graphParameterData.graphType);
     const paramData = props.graphParameterData.allGraphParameters[indexOfType];
     function onLegendChanged(checked: boolean | "indeterminate", paramValue: "showLegend" | "showXAxis" | "showYAxis") {
@@ -72,6 +72,7 @@ export default function GraphPicker(props: GraphPickerProps) {
                             <SelectContent>
                                 <SelectGroup>
                                     <SelectItem value="bar">Bar</SelectItem>
+                                    <SelectItem value="barStack">Stacked Bar</SelectItem>
                                     <SelectItem value="line">Line</SelectItem>
                                     <SelectItem value="area">Area</SelectItem>
                                 </SelectGroup>

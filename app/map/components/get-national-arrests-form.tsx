@@ -1,4 +1,4 @@
-import { GetNationalCrimeByCrimeSchema, tempDisplayCrimeCodes, CrimeDataGraph, CrimeDataNode } from "@/lib/schemas/CDE";
+import { CrimeDataGraph, CrimeDataNode, GetNationalArrestsByCrimeSchema, validArrestOffenseCodes } from "@/lib/schemas/CDE";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -26,33 +26,33 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input";
-import { GetNationalCrimesByCrimeCode } from "@/actions/CDE";
+import { GetNationalArrestsByOffenseCode } from "@/actions/CDE";
 
-const CRIMES = tempDisplayCrimeCodes.map((crime) => {
+const CRIMES = validArrestOffenseCodes.map((crime) => {
     return {
-        value: crime,
-        label: crime.split("-").join(" ")
+        label: crime,
+        value: crime
     }
-});
-interface NationalCrimeProps {
+})
+interface NationalArrestsProps {
     startTransition: (callback: () => void) => void;
     isPending: boolean;
     setData: (data: CrimeDataGraph[]) => void;
     data: CrimeDataGraph[];
 }
-export default function GetNationalCrimeForm(props: NationalCrimeProps) {
+export default function GetNationalArrestsForm(props: NationalArrestsProps) {
     const [currentStartYear, setCurrentStartYear] = useState(0);
     const [currentEndYear, setCurrentEndYear] = useState(0);
     useEffect(() => {
         hljs.registerLanguage('json', json);
     }, []);
-    const form = useForm<z.infer<typeof GetNationalCrimeByCrimeSchema>>({
-        resolver: zodResolver(GetNationalCrimeByCrimeSchema),
+    const form = useForm<z.infer<typeof GetNationalArrestsByCrimeSchema>>({
+        resolver: zodResolver(GetNationalArrestsByCrimeSchema),
         defaultValues: {
-            crime: ""
+            offense: ""
         },
     });
-    async function onSubmit(formData: z.infer<typeof GetNationalCrimeByCrimeSchema>, event: React.BaseSyntheticEvent | undefined) {
+    async function onSubmit(formData: z.infer<typeof GetNationalArrestsByCrimeSchema>, event: React.BaseSyntheticEvent | undefined) {
         if (event === undefined) {
             return;
         }
@@ -75,45 +75,30 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
                 setCurrentEndYear(formData.to);
                 const newData = [];
                 for (let i = 0; i < props.data.length; i++) {
-                    const crime = props.data[i].crime;
-                    const crimes = await GetNationalCrimesByCrimeCode({ crime, from: formData.from, to: formData.to });
-                    const crimeDataNodes: CrimeDataNode[] = []
-                    Object.keys(crimes).forEach((key: string) => {
-                        crimeDataNodes.push({
-                            year: Number(key),
-                            value: crimes[key]
-                        });
-                    });
+                    const offense = props.data[i].crime;
+                    const crimes = await GetNationalArrestsByOffenseCode({ offense, from: formData.from, to: formData.to });
                     newData.push({
-                        crime,
-                        data: crimeDataNodes
+                        crime: offense,
+                        data: crimes
                     });
                 }
                 currentData = newData;
             }
-            const crimes = await GetNationalCrimesByCrimeCode(formData);
-
-            const crimeDataNodes: CrimeDataNode[] = []
-            Object.keys(crimes).forEach((key: string) => {
-                crimeDataNodes.push({
-                    year: Number(key),
-                    value: crimes[key]
-                });
-            });
+            const crimes = await GetNationalArrestsByOffenseCode(formData);
             if (submitterAction === "add-graph") {
                 //check if the crime is already in the graph
-                const crimeIndex = currentData.findIndex((crime) => crime.crime === formData.crime);
+                const crimeIndex = currentData.findIndex((crime) => crime.crime === formData.offense);
                 if (crimeIndex !== -1) {
                     const crimeGraphs = [...currentData];
-                    crimeGraphs[crimeIndex].data = crimeDataNodes;
+                    crimeGraphs[crimeIndex].data = crimes;
                     props.setData(crimeGraphs);
                     return;
                 }
                 const crimeGraphs: CrimeDataGraph[] = [
                     ...currentData,
                     {
-                        crime: formData.crime,
-                        data: crimeDataNodes
+                        crime: formData.offense,
+                        data: crimes
                     }
                 ];
                 props.setData(crimeGraphs);
@@ -121,8 +106,8 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
             }
             const crimeGraphs: CrimeDataGraph[] = [
                 {
-                    crime: formData.crime,
-                    data: crimeDataNodes
+                    crime: formData.offense,
+                    data: crimes
                 }
             ];
             props.setData(crimeGraphs);
@@ -141,11 +126,11 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
                     </legend>
                     <div className="grid gap-3">
                         <FormField
-                            name="crime"
+                            name="offense"
                             control={form.control}
                             render={({ field }) => (
                                 <FormItem className="flex flex-col">
-                                    <FormLabel>Crime</FormLabel>
+                                    <FormLabel>Offense</FormLabel>
                                     <Popover>
                                         <PopoverTrigger asChild disabled={props.isPending}>
                                             <FormControl>
@@ -177,7 +162,7 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
                                                                 value={CRIMES.label}
                                                                 key={CRIMES.value}
                                                                 onSelect={() => {
-                                                                    form.setValue("crime", CRIMES.value)
+                                                                    form.setValue("offense", CRIMES.value)
                                                                 }}
                                                             >
                                                                 <Check

@@ -1,6 +1,6 @@
 "use server"
 import { z } from "zod"
-import { cdeAgenciesResponse, GetAgencyByStateSchema, GetNationalCrimeByCrimeSchema } from "@/lib/schemas/CDE"
+import { cdeAgenciesResponse, CrimeDataNode, GetAgencyByStateSchema, GetNationalArrestsByCrimeSchema, GetNationalCrimeByCrimeSchema } from "@/lib/schemas/CDE"
 
 export async function GetAgenciesByStateCode(values: z.infer<typeof GetAgencyByStateSchema>): Promise<cdeAgenciesResponse[]>  {
     const stateCode = values.stateCode;
@@ -22,4 +22,28 @@ export async function GetNationalCrimesByCrimeCode(values: z.infer<typeof GetNat
     }
     const key = Object.keys(data)[0];
     return data[key];
+}
+type NationalArrestNode = {
+    data_year:number;
+    [key:string]:number;
+}
+export async function GetNationalArrestsByOffenseCode(values: z.infer<typeof GetNationalArrestsByCrimeSchema>): Promise<CrimeDataNode[]> {
+    const crimeCode = values.offense;
+    const from = values.from;
+    const to = values.to;
+    const queryURL = `https://api.usa.gov/crime/fbi/cde/arrest/national/all?from=${from}&to=${to}&API_KEY=${process.env.CDE_API_KEY}`
+    const response = await fetch(queryURL);
+    const result = await response.json();
+    const data = result["data"]
+    if (data === undefined) {
+        return [];
+    }
+    const returnData:CrimeDataNode[] = [];
+    data.forEach((element:NationalArrestNode) => {
+        returnData.push({
+            year:element.data_year,
+            value:element[crimeCode]
+        })
+    });
+    return returnData;
 }

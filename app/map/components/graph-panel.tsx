@@ -43,6 +43,49 @@ function BarChartComponent(props: GraphComponentProps) {
         </ChartContainer>
     )
 }
+function StackedBarChartComponent(props: GraphComponentProps) {
+    const { chartData, chartConfig, chartLabels } = props;
+    const params = props.params;
+    return (
+        <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+            <BarChart data={chartData}
+                margin={{
+                    left: 12,
+                    right: 12,
+                }}
+            >
+                <CartesianGrid vertical={params.showXAxis} horizontal={params.showYAxis} />
+                <XAxis
+                    dataKey="year"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                    tickFormatter={(value) => value.toString()}
+                />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                {params.showLegend && <ChartLegend content={<ChartLegendContent />} />}
+                {chartLabels.map((label, index) => {
+                    let radius:[number, number, number, number] = [0, 0, 0, 0];
+                    if (index === 0 && chartLabels.length === 1){
+                        radius = [4, 4, 4, 4];
+                    }else if (index === 0) {
+                        radius = [0, 0, 4, 4];
+                    } else if (index === chartLabels.length - 1) {
+                        radius = [4, 4, 0, 0];
+                    }
+                        return (
+                        <Bar
+                            key={index}
+                            dataKey={label}
+                            fill={chartConfig[label].color}
+                            radius={radius}
+                            stackId={"a"}
+                        />);
+                    })}
+            </BarChart>
+        </ChartContainer>
+    )
+}
 function LineChartComponent(props: GraphComponentProps) {
     const { chartData, chartConfig, chartLabels } = props;
     const params = props.params;
@@ -87,8 +130,8 @@ function AreaChartComponent(props: GraphComponentProps) {
         <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
             <AreaChart data={chartData}
                 margin={{
-                    left: 0,
-                    right: 0,
+                    left: 12,
+                    right: 12,
                 }}
             >
                 <CartesianGrid vertical={props.params.showXAxis} horizontal={props.params.showYAxis} strokeDasharray="" />
@@ -98,10 +141,9 @@ function AreaChartComponent(props: GraphComponentProps) {
                     tickMargin={10}
                     axisLine={false}
                     tickFormatter={(value) => value.toString()}
-                    padding={{ left: 0, right: 0 }}
                     scale={"point"}
                 />
-                <ChartTooltip content={<ChartTooltipContent hideLabel indicator="dot" />} />
+                <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
                 {props.params.showLegend && <ChartLegend content={<ChartLegendContent />} />}
                 {chartLabels.map((label, index) => (
                     <Area
@@ -160,6 +202,7 @@ export default function GraphPanel(props: GraphPanelProps) {
             {props.graphParameterData.graphType === "bar" && <BarChartComponent chartData={chartData} chartConfig={chartConfig} chartLabels={chartLabels} params={props.graphParameterData.allGraphParameters[0]} />}
             {props.graphParameterData.graphType === "line" && <LineChartComponent chartData={chartData} chartConfig={chartConfig} chartLabels={chartLabels} params={props.graphParameterData.allGraphParameters[1]} />}
             {props.graphParameterData.graphType === "area" && <AreaChartComponent chartData={chartData} chartConfig={chartConfig} chartLabels={chartLabels} params={props.graphParameterData.allGraphParameters[2]} />}
+            {props.graphParameterData.graphType === "barStack" && <StackedBarChartComponent chartData={chartData} chartConfig={chartConfig} chartLabels={chartLabels} params={props.graphParameterData.allGraphParameters[3]} />}
         </div>
     )
 }

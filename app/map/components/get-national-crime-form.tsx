@@ -42,10 +42,14 @@ interface NationalCrimeProps {
     data: CrimeDataGraph[];
 }
 export default function GetNationalCrimeForm(props: NationalCrimeProps) {
+    const validGraphTypes = ["bar", "line", "area", "barStack"];
     const [currentStartYear, setCurrentStartYear] = useState(0);
     const [currentEndYear, setCurrentEndYear] = useState(0);
     const graphTypeWhenSet = useGraphDataStore((state) => state.graphTypeWhenSet);
     const setGraphTypeWhenSet = useGraphDataStore((state) => state.setGraphTypeWhenSet);
+    const graphParameterData = useGraphDataStore((state) => state.graphParameterData);
+    const setGraphParameterData = useGraphDataStore((state) => state.setGraphParameterData);
+    const graphType = graphParameterData.graphType;
     useEffect(() => {
         hljs.registerLanguage('json', json);
     }, []);
@@ -111,6 +115,12 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
                     const crimeGraphs = [...currentData];
                     crimeGraphs[crimeIndex].data = crimeDataNodes;
                     props.setData(crimeGraphs);
+                    if (!validGraphTypes.includes(graphType)){
+                        setGraphParameterData({
+                            ...graphParameterData,
+                            graphType: "bar"
+                        });
+                    }
                     return;
                 }
                 const crimeGraphs: CrimeDataGraph[] = [
@@ -121,6 +131,12 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
                     }
                 ];
                 props.setData(crimeGraphs);
+                if (!validGraphTypes.includes(graphType)){
+                    setGraphParameterData({
+                        ...graphParameterData,
+                        graphType: "bar"
+                    });
+                }
                 return;
             }
             const crimeGraphs: CrimeDataGraph[] = [
@@ -130,6 +146,12 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
                 }
             ];
             props.setData(crimeGraphs);
+            if (!validGraphTypes.includes(graphType)){
+                setGraphParameterData({
+                    ...graphParameterData,
+                    graphType: "bar"
+                });
+            }
         });
     }
     return (

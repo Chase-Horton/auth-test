@@ -125,3 +125,73 @@ export const GetNationalArrestsByCrimeSchema = z.object({
   message: "End year must be greater than start year.",
   path: ["to"]
 });
+export const ValidNationalArrestByCategoryCategories = [
+  "Violent Crime",
+  "Property Crime",
+  "Society",
+  "Drug Sales",
+  "Gambling",
+  "Prostitution",
+]
+export const NationalArrestByCategoryMapToOffenses = {
+  "Violent Crime": [
+      "Aggravated Assault",
+      "Sex Offenses (Except Rape, and Prostitution and Commercialized Vice)",
+      "Manslaughter by Negligence",
+      "Murder and Nonnegligent Manslaughter",
+      "Rape",
+      "Robbery",
+      "Simple Assault",
+      "Human Trafficking - Commercial Sex Acts",
+      "Human Trafficking - Involuntary Servitude"
+  ],
+  "Property Crime": [
+      "Motor Vehicle Theft",
+      "Arson",
+      "Burglary",
+      "Embezzlement",
+      "Forgery and Counterfeiting",
+      "Fraud",
+      "Larceny - Theft",
+      "Vandalism",
+      "Stolen Property: Buying, Receiving, Possessing"
+  ],
+  "Society":  [
+      "Drunkenness",
+      "All Other Offenses (Except Traffic)",
+      "Curfew and Loitering Law Violations",
+      "Disorderly Conduct",
+      "Driving Under the Influence",
+      "Liquor Laws",
+      "Offenses Against the Family and Children",
+      "Suspicion",
+      "Vagrancy",
+      "Weapons: Carrying, Possessing, Etc.",
+      "Drug Abuse Violations - Grand Total",
+      "Gambling - Total",
+      "Prostitution and Commercialized Vice"
+  ],
+  "Drug Sales": [
+      "Marijuana",
+      "Opium or Cocaine or Their Derivatives",
+      "Other - Dangerous Nonnarcotic Drugs",
+      "Synthetic Narcotics",
+      "Drug Sale/Manufacturing - Subtotal"
+  ],
+  "Gambling":[
+      "Gambling - All Other Gambling",
+      "Gambling - Bookmaking (Horse and Sport Book)",
+      "Gambling - Numbers and Lottery",
+      "Gambling - Total"
+  ],
+  "Prostitution":[
+      "Prostitution and Commercialized Vice",
+  ],
+}
+const ArrestCategorySchema = z.enum(["Violent Crime", "Property Crime", "Society", "Drug Sales", "Gambling", "Prostitution"])
+export type ArrestCategory = z.infer<typeof ArrestCategorySchema>
+export const GetNationalArrestsByCategoryCodeSchema = z.object({
+  year: z.coerce.number({errorMap:customErrorMap}).int().min(1979, "Year must be greater than 1978").max(2022, "Year must be before 2023"),
+  end: z.number().int().min(1979, "Year must be greater than 1978").max(2022, "Year must be before 2023").optional(),
+  category: ArrestCategorySchema,
+})

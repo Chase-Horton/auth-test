@@ -34,20 +34,19 @@ import { CrimeDataGraph, MarkerData } from "@/lib/schemas/CDE"
 import { useState, useTransition } from "react"
 import ReactMapBoxMap from "@/components/myui/map-box-react"
 import GraphPanel from "./graph-panel"
-import GraphPicker, { GraphParamterData } from "./graph-picker"
+import GraphPickerPie from "./graph-picker-pie"
 import QueryParametersPanel from "./query-parameters-component"
+import GraphPicker from "./graph-picker"
 
 export default function QueryDashboard() {
   const [queryState, setQueryState] = useState<string>("")
   const [isPending, startTransition] = useTransition()
   const [data, setData] = useState<MarkerData[]>([])
   const [graphData, setGraphData] = useState<CrimeDataGraph[]>([])
-  const [graphParameterData, setGraphParameterData] = useState<GraphParamterData>({graphType: "bar", allGraphParameters: [
-    {showLegend: true, showXAxis: false, showYAxis: false},
-    {showLegend: true, showXAxis: false, showYAxis: true},
-    {showLegend: true, showXAxis: false, showYAxis: false},
-    {showLegend: true, showXAxis: false, showYAxis: false},
-  ]})
+  const handleSelect = (value:string) => {
+    console.log(value)
+    setQueryState(value)
+  }
   return (
     <TooltipProvider>
       <div className="grid h-screen w-full">
@@ -193,7 +192,7 @@ export default function QueryDashboard() {
                   </legend>
                   <div className="grid gap-3">
                     <Label htmlFor="model">Query</Label>
-                    <Select disabled={isPending} onValueChange={(value) => setQueryState(value)}>
+                    <Select disabled={isPending} onValueChange={handleSelect}>
                       <SelectTrigger
                         id="model"
                         className="items-start [&_[data-description]]:hidden"
@@ -203,7 +202,7 @@ export default function QueryDashboard() {
                       <SelectContent>
                         <SelectItem value="selectAgency">
                           <div className="flex items-start gap-3 text-muted-foreground">
-                            <Rabbit className="size-5" />
+                            <Bird className="size-5" />
                             <div className="grid gap-0.5">
                               <p>
                                 GET{" "}
@@ -249,12 +248,29 @@ export default function QueryDashboard() {
                             </div>
                           </div>
                         </SelectItem>
+                        <SelectItem value="selectNationalArrestCategories">
+                          <div className="flex items-start gap-3 text-muted-foreground">
+                            <Rabbit className="size-5" />
+                            <div className="grid gap-0.5">
+                              <p>
+                                SELECT{" "}
+                                <span className="font-medium text-foreground">
+                                  national arrest categories by year
+                                </span>
+                              </p>
+                              <p className="text-xs" data-description>
+                                  Get national arrests by offense name
+                              </p>
+                            </div>
+                          </div>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </fieldset>
-                <QueryParametersPanel queryState={queryState} startTransition={startTransition} isPending={isPending} setMarkerData={setData} setGraphData={setGraphData} graphData={graphData} />
-                {queryState != "selectAgency" && <GraphPicker setGraphParameterData={setGraphParameterData} graphParameterData={graphParameterData} />}
+                <QueryParametersPanel queryState={queryState} startTransition={startTransition} isPending={isPending} setMarkerData={setData} setGraphData={setGraphData} graphData={graphData}/>
+                {queryState != "selectAgency" && queryState != "selectNationalArrestCategories" && <GraphPicker />}
+                {queryState == "selectNationalArrestCategories" && <GraphPickerPie />}
               </div>
             </div>
             <div className="relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-0 lg:col-span-2">
@@ -262,7 +278,7 @@ export default function QueryDashboard() {
                 {queryState != "selectNationalCrime" ? "Output" : "victims per 100k"}
               </Badge>
               {queryState == "selectAgency" &&<ReactMapBoxMap markerData={data} />}
-              {queryState != "selectAgency" && <GraphPanel graphData={graphData} graphParameterData={graphParameterData}/>}
+              {queryState != "selectAgency" && <GraphPanel graphData={graphData} />}
             </div>
           </main>
         </div>

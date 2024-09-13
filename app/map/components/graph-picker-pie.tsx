@@ -4,8 +4,16 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { AnimatePresence, motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator"
 import { useState } from "react";
-import { GraphParamterData } from "./graph-picker-pie";
 import { useGraphDataStore } from "@/data/stores";
+export type GraphParameters = {
+    showLegend: boolean;
+    showXAxis: boolean;
+    showYAxis: boolean;
+}
+export type GraphParamterData = {
+    graphType: string;
+    allGraphParameters: GraphParameters[]
+}
 const container = {
     hidden: { opacity: 1, scale: 0, height: 0, overflow: "hidden" },
     visible: {
@@ -25,11 +33,11 @@ const item = {
         opacity: 1
     }
 };
-export default function GraphPicker() {
+export default function GraphPickerPie() {
+    const [advanced, setAdvanced] = useState(false);
+    const chartTypes = ["bar", "line", "area", "barStack", "pie", "radar", "barMixed", "donut", "radialBar"];
     const graphParameterData = useGraphDataStore((state) => state.graphParameterData);
     const setGraphParameterData = useGraphDataStore((state) => state.setGraphParameterData);
-    const [advanced, setAdvanced] = useState(false);
-    const chartTypes = ["bar", "line", "area", "barStack"];
     const indexOfType = chartTypes.indexOf(graphParameterData.graphType);
     const paramData = graphParameterData.allGraphParameters[indexOfType];
     function onLegendChanged(checked: boolean | "indeterminate", paramValue: "showLegend" | "showXAxis" | "showYAxis") {
@@ -55,28 +63,37 @@ export default function GraphPicker() {
                 <div className="grid">
                     <Label htmlFor="graphType" className="mb-3">Type</Label>
                     <div className="flex flex-row justify-between mb-2">
-                        <Select name="graphType" value={graphParameterData.graphType} onValueChange={(value) => setGraphParameterData({...graphParameterData, graphType:value})}>
+                        <Select name="graphType" value={graphParameterData.graphType} onValueChange={(value) => setGraphParameterData({ ...graphParameterData, graphType: value })}>
                             <SelectTrigger className="w-1/2">
                                 <SelectValue placeholder="Select a graph type" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectGroup>
-                                    <SelectItem value="bar">Bar</SelectItem>
-                                    <SelectItem value="barStack">Stacked Bar</SelectItem>
-                                    <SelectItem value="line">Line</SelectItem>
-                                    <SelectItem value="area">Area</SelectItem>
+                                    <SelectItem value="barMixed">Bar</SelectItem>
+                                </SelectGroup>
+                                <SelectGroup>
+                                    <SelectItem value="radialBar">Radial Bar</SelectItem>
+                                </SelectGroup>
+                                <SelectGroup>
+                                    <SelectItem value="radar">Radar</SelectItem>
+                                </SelectGroup>
+                                <SelectGroup>
+                                    <SelectItem value="pie">Pie</SelectItem>
+                                </SelectGroup>
+                                <SelectGroup>
+                                    <SelectItem value="donut">Donut</SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
                         <div className="flex flex-col justify-center items-end w-1/4">
                             <div className="flex space-x-2">
-                            <Checkbox id="advanced" checked={advanced} onCheckedChange={(checked) => { if (checked !== "indeterminate") setAdvanced(checked) }} />
-                            <label
-                                htmlFor="advanced"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                                Advanced Settings
-                            </label>
+                                <Checkbox id="advanced" checked={advanced} onCheckedChange={(checked) => { if (checked !== "indeterminate") setAdvanced(checked) }} />
+                                <label
+                                    htmlFor="advanced"
+                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                    Advanced Settings
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -94,10 +111,10 @@ export default function GraphPicker() {
                             <div className="flex flex-row gap-x-4">
                                 <motion.div variants={item} className="flex items-center space-x-2">
                                     <Checkbox id="showLegend" checked={paramData.showLegend} onCheckedChange={(checked) => onLegendChanged(checked, "showLegend")} />
-                                    <Label htmlFor="showLegend">Show Legend</Label>
+                                    <Label htmlFor="showLegend">Show Labels</Label>
                                 </motion.div>
-                                <motion.div variants={item} className={`flex items-center space-x-2 ${indexOfType === 0 ? "cursor-not-allowed": ""}`}>
-                                    <Checkbox id="showXAxis" disabled={indexOfType == 0} checked={paramData.showXAxis} onCheckedChange={(checked) => onLegendChanged(checked, "showXAxis")} />
+                                <motion.div variants={item} className={`flex items-center space-x-2 ${indexOfType === 0 || indexOfType === 6 ? "cursor-not-allowed" : ""}`}>
+                                    <Checkbox id="showXAxis" disabled={indexOfType === 0 || indexOfType === 6} checked={paramData.showXAxis} onCheckedChange={(checked) => onLegendChanged(checked, "showXAxis")} />
                                     <Label htmlFor="showXAxis">Show X Axis</Label>
                                 </motion.div>
                                 <motion.div variants={item} className="flex items-center space-x-2">

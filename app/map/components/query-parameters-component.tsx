@@ -2,6 +2,7 @@ import { CrimeDataGraph, MarkerData } from "@/lib/schemas/CDE";
 import GetAgenciesForm from "./get-agencies-form";
 import GetNationalArrestsForm from "./get-national-arrests-form";
 import GetNationalCrimeForm from "./get-national-crime-form";
+import GetNationalArrestsByCategoryForm from "./get-national-arrest-categories-form";
 interface QueryParametersPanelProps {
     queryState: string;
     startTransition: (callback: () => void) => void;
@@ -17,6 +18,7 @@ export default function QueryParametersPanel(props: QueryParametersPanelProps) {
             {queryState == "selectAgency" && <GetAgenciesForm startTransition={startTransition} isPending={isPending} setData={setMarkerData}/> }
             {queryState == "selectNationalCrime" && <GetNationalCrimeForm startTransition={startTransition} isPending={isPending} setData={setGraphData} data={graphData}/> }
             {queryState == "selectNationalArrests" && <GetNationalArrestsForm startTransition={startTransition} isPending={isPending} setData={setGraphData} data={graphData}/> }
+            {queryState == "selectNationalArrestCategories" && <GetNationalArrestsByCategoryForm startTransition={startTransition} isPending={isPending} /> }
         </div>
     )
 }

@@ -4,6 +4,7 @@ import { Bar, BarChart, XAxis, Line, LineChart, AreaChart, Area, CartesianGrid }
 
 import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { CrimeDataGraph } from "@/lib/schemas/CDE"
+import { GraphParameters, GraphParamterData } from "./graph-picker";
 interface ChartDataItem {
     year: string;
     [key: string]: string | number
@@ -11,6 +12,7 @@ interface ChartDataItem {
 const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"]
 function BarChartComponent(props: GraphComponentProps) {
     const { chartData, chartConfig, chartLabels } = props;
+    const params = props.params;
     return (
         <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
             <BarChart data={chartData}
@@ -19,7 +21,7 @@ function BarChartComponent(props: GraphComponentProps) {
                     right: 12,
                 }}
             >
-
+                <CartesianGrid vertical={params.showXAxis} horizontal={params.showYAxis} />
                 <XAxis
                     dataKey="year"
                     tickLine={false}
@@ -28,7 +30,7 @@ function BarChartComponent(props: GraphComponentProps) {
                     tickFormatter={(value) => value.toString()}
                 />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <ChartLegend content={<ChartLegendContent />} />
+                {params.showLegend && <ChartLegend content={<ChartLegendContent />} />}
                 {chartLabels.map((label, index) => (
                     <Bar
                         key={index}
@@ -43,6 +45,7 @@ function BarChartComponent(props: GraphComponentProps) {
 }
 function LineChartComponent(props: GraphComponentProps) {
     const { chartData, chartConfig, chartLabels } = props;
+    const params = props.params;
     return (
         <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
             <LineChart data={chartData}
@@ -51,7 +54,7 @@ function LineChartComponent(props: GraphComponentProps) {
                     right: 12,
                 }}
             >
-                <CartesianGrid vertical={false} />
+                <CartesianGrid vertical={params.showXAxis} horizontal={params.showYAxis} />
                 <XAxis
                     dataKey="year"
                     tickLine={false}
@@ -61,7 +64,7 @@ function LineChartComponent(props: GraphComponentProps) {
                     padding={{ left: 12, right: 12 }}
                 />
                 <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
-                <ChartLegend content={<ChartLegendContent />} />
+                {params.showLegend && <ChartLegend content={<ChartLegendContent />} />}
                 {chartLabels.map((label, index) => (
                     <Line
                         type="natural"
@@ -88,7 +91,7 @@ function AreaChartComponent(props: GraphComponentProps) {
                     right: 0,
                 }}
             >
-                <CartesianGrid vertical={false} horizontal={false} strokeDasharray=""/>
+                <CartesianGrid vertical={props.params.showXAxis} horizontal={props.params.showYAxis} strokeDasharray="" />
                 <XAxis
                     dataKey="year"
                     tickLine={false}
@@ -99,7 +102,7 @@ function AreaChartComponent(props: GraphComponentProps) {
                     scale={"point"}
                 />
                 <ChartTooltip content={<ChartTooltipContent hideLabel indicator="dot" />} />
-                <ChartLegend content={<ChartLegendContent />} />
+                {props.params.showLegend && <ChartLegend content={<ChartLegendContent />} />}
                 {chartLabels.map((label, index) => (
                     <Area
                         key={index}
@@ -119,10 +122,11 @@ interface GraphComponentProps {
     chartData: ChartDataItem[];
     chartConfig: ChartConfig;
     chartLabels: string[];
+    params: GraphParameters;
 }
 interface GraphPanelProps {
     graphData: CrimeDataGraph[];
-    graphType: string;
+    graphParameterData: GraphParamterData;
 }
 export default function GraphPanel(props: GraphPanelProps) {
     const graphData = props.graphData;
@@ -153,9 +157,9 @@ export default function GraphPanel(props: GraphPanelProps) {
     chartLabels.sort((a, b) => averages[b] - averages[a]);
     return (
         <div className="w-full h-full rounded-lg flex justify-center items-center p-0">
-            {props.graphType === "bar" && <BarChartComponent chartData={chartData} chartConfig={chartConfig} chartLabels={chartLabels} />}
-            {props.graphType === "line" && <LineChartComponent chartData={chartData} chartConfig={chartConfig} chartLabels={chartLabels} />}
-            {props.graphType === "area" && <AreaChartComponent chartData={chartData} chartConfig={chartConfig} chartLabels={chartLabels} />}
+            {props.graphParameterData.graphType === "bar" && <BarChartComponent chartData={chartData} chartConfig={chartConfig} chartLabels={chartLabels} params={props.graphParameterData.allGraphParameters[0]} />}
+            {props.graphParameterData.graphType === "line" && <LineChartComponent chartData={chartData} chartConfig={chartConfig} chartLabels={chartLabels} params={props.graphParameterData.allGraphParameters[1]} />}
+            {props.graphParameterData.graphType === "area" && <AreaChartComponent chartData={chartData} chartConfig={chartConfig} chartLabels={chartLabels} params={props.graphParameterData.allGraphParameters[2]} />}
         </div>
     )
 }

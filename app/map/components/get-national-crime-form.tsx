@@ -9,7 +9,7 @@ import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
 import { useEffect, useState } from "react";
 import "highlight.js/styles/atom-one-dark.css";
-
+import {motion} from "framer-motion";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
@@ -130,6 +130,10 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
         });
     }
     return (
+        <motion.div 
+        initial={{scale:1}}
+        animate={{scale:1}}
+        >
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <fieldset className="grid gap-6 rounded-lg border p-4" >
@@ -240,5 +244,6 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
                 </fieldset>
             </form>
         </Form>
+        </motion.div>
     )
 }

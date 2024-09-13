@@ -26,8 +26,8 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input";
-import { GetNationalArrestsByOffenseCode } from "@/actions/CDE";
-
+import { GetNationalArrestsByOffenseAll, GetNationalArrestsByOffenseCode } from "@/actions/CDE";
+import { ArrestDataYear, useArrestDataStore } from "@/data/stores";
 const CRIMES = validArrestOffenseCodes.map((crime) => {
     return {
         label: crime,
@@ -41,8 +41,12 @@ interface NationalArrestsProps {
     data: CrimeDataGraph[];
 }
 export default function GetNationalArrestsForm(props: NationalArrestsProps) {
-    const [currentStartYear, setCurrentStartYear] = useState(0);
-    const [currentEndYear, setCurrentEndYear] = useState(0);
+    const arrestData  = useArrestDataStore((state) => state.allArrestData)
+    const arrestDataFrom = useArrestDataStore((state) => state.from)
+    const arrestDataTo = useArrestDataStore((state) => state.to)
+    const setArrestData = useArrestDataStore((state) => state.setAllArrestData)
+    const setArrestDataFrom = useArrestDataStore((state) => state.setFrom)
+    const setArrestDataTo = useArrestDataStore((state) => state.setTo)
     useEffect(() => {
         hljs.registerLanguage('json', json);
     }, []);
@@ -68,40 +72,52 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
                 </pre>
             ),
         })
-        let currentData = props.data;
         props.startTransition(async () => {
-            if (submitterAction === "add-graph" && props.data && (formData.from !== currentStartYear || formData.to !== currentEndYear)) {
-                setCurrentStartYear(formData.from);
-                setCurrentEndYear(formData.to);
-                const newData = [];
+            debugger;
+            setArrestDataFrom(formData.from);
+            setArrestDataTo(formData.to);
+            if (submitterAction === "add-graph") {
                 for (let i = 0; i < props.data.length; i++) {
                     const offense = props.data[i].crime;
-                    const crimes = await GetNationalArrestsByOffenseCode({ offense, from: formData.from, to: formData.to });
-                    newData.push({
-                        crime: offense,
-                        data: crimes
-                    });
-                }
-                currentData = newData;
-            }
-            const crimes = await GetNationalArrestsByOffenseCode(formData);
-            if (submitterAction === "add-graph") {
-                //check if the crime is already in the graph
-                const crimeIndex = currentData.findIndex((crime) => crime.crime === formData.offense);
-                if (crimeIndex !== -1) {
-                    const crimeGraphs = [...currentData];
-                    crimeGraphs[crimeIndex].data = crimes;
-                    props.setData(crimeGraphs);
-                    return;
-                }
-                const crimeGraphs: CrimeDataGraph[] = [
-                    ...currentData,
-                    {
-                        crime: formData.offense,
-                        data: crimes
+                    let crimes: CrimeDataNode[] = [];
+                    if (arrestDataFrom >= formData.from && arrestDataTo <= formData.to) {
+                        for(let i = 0; i < arrestData.length; i++) {
+                            if(arrestData[i].year >= formData.from && arrestData[i].year <= formData.to) {
+                                const crime = arrestData[i].data.find((crime) => crime.offense === offense);
+                                if(crime) {
+                                    crimes.push({year:arrestData[i].year, value:crime.arrests});
+                                }
+                            }
+                        }
+                    } else {
+                        let arrestDataYears = await GetNationalArrestsByOffenseAll({ offense, from: formData.from, to: formData.to });
+                        setArrestData(arrestDataYears);
                     }
-                ];
-                props.setData(crimeGraphs);
+                }
+            }
+            let crimes = [];
+            if (arrestDataFrom <= formData.from && arrestDataTo >= formData.to && arrestData.length > 0) {
+                for(let i = 0; i < arrestData.length; i++) {
+                    if(arrestData[i].year >= formData.from && arrestData[i].year <= formData.to) {
+                        const crime = arrestData[i].data.find((crime) => crime.offense === formData.offense);
+                        if(crime) {
+                            crimes.push({year:arrestData[i].year, value:crime.arrests});
+                        }
+                    }
+                }
+            } else {
+                let arrestDataYears = await GetNationalArrestsByOffenseAll(formData);
+                setArrestData(arrestDataYears);
+            }
+            if (submitterAction === "add-graph") {
+                const crimeIndex = props.data.findIndex((crime) => crime.crime === formData.offense);
+                if (crimeIndex === -1) {
+                    props.setData([...props.data, { crime: formData.offense, data: crimes }]);
+                } else {
+                    const newData = [...props.data];
+                    newData[crimeIndex].data = crimes;
+                    props.setData(newData);
+                }
                 return;
             }
             const crimeGraphs: CrimeDataGraph[] = [
@@ -146,7 +162,7 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
                                                         ? CRIMES.find(
                                                             (CRIMES) => CRIMES.value === field.value
                                                         )?.label
-                                                        : "Select a crime"}
+                                                        : "Select an offense"}
                                                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                                 </Button>
                                             </FormControl>
@@ -155,7 +171,7 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
                                             <Command>
                                                 <CommandInput placeholder="Search crimes..." />
                                                 <CommandList>
-                                                    <CommandEmpty>No states found.</CommandEmpty>
+                                                    <CommandEmpty>No offenses found.</CommandEmpty>
                                                     <CommandGroup>
                                                         {CRIMES.map((CRIMES) => (
                                                             <CommandItem
@@ -182,7 +198,7 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
                                         </PopoverContent>
                                     </Popover>
                                     <FormDescription>
-                                        This is the crime that all national data will be retrieved for.
+                                        This is the offense that all national arrests will be retrieved for.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
@@ -215,14 +231,14 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
                         </div>
                     </div>
                     <div className="flex flex-row w-full">
-                        {props.data.length > 0 && <Button type="submit" name="action" value="add-graph" disabled={props.isPending} className="w-[10rem] mr-4">
+                        {arrestData.length > 0 && <Button type="submit" name="action" value="add-graph" disabled={props.isPending} className="w-[10rem] mr-4">
                             {props.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {!props.isPending && <> Add to graph</>}
                         </Button>}
                         <Button type="submit" name="action" value="create-graph" disabled={props.isPending} className="w-full">
                             {props.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {!props.isPending && props.data.length === 0 && <> Submit</>}
-                            {!props.isPending && props.data.length > 0 && <> Create new Graph</>}
+                            {!props.isPending && arrestData.length === 0 && <> Submit</>}
+                            {!props.isPending && arrestData.length > 0 && <> Create new Graph</>}
                         </Button>
                     </div>
                 </fieldset>

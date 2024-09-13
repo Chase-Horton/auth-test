@@ -38,6 +38,7 @@ import GetNationalCrimeForm from "./get-national-crime-form"
 import GraphPanel from "./graph-panel"
 import GraphPicker, { GraphParamterData } from "./graph-picker"
 import GetNationalArrestsForm from "./get-national-arrests-form"
+import QueryParametersPanel from "./query-parameters-component"
 
 export default function QueryDashboard() {
   const [queryState, setQueryState] = useState<string>("")
@@ -255,9 +256,7 @@ export default function QueryDashboard() {
                     </Select>
                   </div>
                 </fieldset>
-                {queryState == "selectAgency" && <GetAgenciesForm startTransition={startTransition} isPending={isPending} setData={setData}/> }
-                {queryState == "selectNationalCrime" && <GetNationalCrimeForm startTransition={startTransition} isPending={isPending} setData={setGraphData} data={graphData}/> }
-                {queryState == "selectNationalArrests" && <GetNationalArrestsForm startTransition={startTransition} isPending={isPending} setData={setGraphData} data={graphData}/> }
+                <QueryParametersPanel queryState={queryState} startTransition={startTransition} isPending={isPending} setMarkerData={setData} setGraphData={setGraphData} graphData={graphData} />
                 {queryState != "selectAgency" && <GraphPicker setGraphParameterData={setGraphParameterData} graphParameterData={graphParameterData} />}
               </div>
             </div>

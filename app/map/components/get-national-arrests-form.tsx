@@ -106,7 +106,7 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
                 newData = nodes;
             }
             if (currentArrestData.length === 0 || currentArrestDataFrom > formData.from || currentArrestDataTo < formData.to) {
-                let arrestDataYears = await GetNationalArrestsByOffenseAll(formData);
+                const arrestDataYears = await GetNationalArrestsByOffenseAll(formData);
                 setArrestData(arrestDataYears);
                 currentArrestData = arrestDataYears;
                 setArrestDataFrom(formData.from);

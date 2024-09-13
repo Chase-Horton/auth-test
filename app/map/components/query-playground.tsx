@@ -200,7 +200,7 @@ export default function QueryDashboard() {
                             <Rabbit className="size-5" />
                             <div className="grid gap-0.5">
                               <p>
-                                SELECT{" "}
+                                GET{" "}
                                 <span className="font-medium text-foreground">
                                   agency
                                 </span>
@@ -232,7 +232,7 @@ export default function QueryDashboard() {
                   </div>
                 </fieldset>
                 {queryState == "selectAgency" && <GetAgenciesForm startTransition={startTransition} isPending={isPending} setData={setData}/> }
-                {queryState == "selectNationalCrime" && <GetNationalCrimeForm startTransition={startTransition} isPending={isPending} setData={setGraphData}/> }
+                {queryState == "selectNationalCrime" && <GetNationalCrimeForm startTransition={startTransition} isPending={isPending} setData={setGraphData} data={graphData}/> }
               </div>
             </div>
             <div className="relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-0 lg:col-span-2">

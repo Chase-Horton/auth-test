@@ -38,6 +38,7 @@ interface NationalCrimeProps {
     startTransition: (callback: () => void) => void;
     isPending: boolean;
     setData: (data: CrimeDataGraph[]) => void;
+    data: CrimeDataGraph[];
 }
 export default function GetNationalCrimeForm(props: NationalCrimeProps) {
     useEffect(() => {
@@ -49,7 +50,13 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
             crime: ""
         },
     });
-    async function onSubmit(data: z.infer<typeof GetNationalCrimeByCrimeSchema>) {
+    async function onSubmit(data: z.infer<typeof GetNationalCrimeByCrimeSchema>, event: React.BaseSyntheticEvent | undefined) {
+        if(event === undefined){
+            return;
+        }
+        event.preventDefault();
+        //@ts-expect-error - submitter is not a valid property on BaseSyntheticEvent because it is any type, but it will be on a form event
+        const submitterAction = event.nativeEvent.submitter.getAttribute("value");
         const description = hljs.highlight(JSON.stringify(data, null, 2), { language: 'json' }).value;
         toast({
             title: "You submitted the following values:",
@@ -69,6 +76,17 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
                     value: crimes[key]
                 });
             });
+            if (submitterAction === "add-graph") {
+                const crimeGraphs: CrimeDataGraph[] = [
+                    ...props.data,
+                    {
+                        crime: data.crime,
+                        data: crimeDataNodes
+                    }
+                ];
+                props.setData(crimeGraphs);
+                return;
+            }
             const crimeGraphs: CrimeDataGraph[] = [
                 {
                     crime: data.crime,
@@ -175,10 +193,16 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
                                 )} />
                         </div>
                     </div>
-                    <Button type="submit" disabled={props.isPending}>
-                        {props.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        {!props.isPending && <>Submit</>}
-                    </Button>
+                    <div className="flex flex-row w-full">
+                        {props.data.length > 0 && <Button type="submit" name="action" value="add-graph" disabled={props.isPending} className="w-[10rem] mr-4">
+                            {props.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {!props.isPending && <> Add to graph</>}
+                        </Button>}
+                        <Button type="submit" name="action" value="create-graph" disabled={props.isPending} className="w-full">
+                            {props.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {!props.isPending && <> Submit</>}
+                        </Button>
+                    </div>
                 </fieldset>
             </form>
         </Form>

@@ -7,7 +7,7 @@ import { Form, FormField, FormItem, FormControl, FormMessage, FormLabel, FormDes
 import { Button } from "@/components/ui/button";
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "highlight.js/styles/atom-one-dark.css";
 
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react"
@@ -41,6 +41,8 @@ interface NationalCrimeProps {
     data: CrimeDataGraph[];
 }
 export default function GetNationalCrimeForm(props: NationalCrimeProps) {
+    const [currentStartYear, setCurrentStartYear] = useState(0);
+    const [currentEndYear, setCurrentEndYear] = useState(0);
     useEffect(() => {
         hljs.registerLanguage('json', json);
     }, []);
@@ -50,14 +52,14 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
             crime: ""
         },
     });
-    async function onSubmit(data: z.infer<typeof GetNationalCrimeByCrimeSchema>, event: React.BaseSyntheticEvent | undefined) {
-        if(event === undefined){
+    async function onSubmit(formData: z.infer<typeof GetNationalCrimeByCrimeSchema>, event: React.BaseSyntheticEvent | undefined) {
+        if (event === undefined) {
             return;
         }
         event.preventDefault();
         //@ts-expect-error - submitter is not a valid property on BaseSyntheticEvent because it is any type, but it will be on a form event
         const submitterAction = event.nativeEvent.submitter.getAttribute("value");
-        const description = hljs.highlight(JSON.stringify(data, null, 2), { language: 'json' }).value;
+        const description = hljs.highlight(JSON.stringify(formData, null, 2), { language: 'json' }).value;
         toast({
             title: "You submitted the following values:",
             description: (
@@ -66,8 +68,31 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
                 </pre>
             ),
         })
+        let currentData = props.data;
         props.startTransition(async () => {
-            const crimes = await GetNationalCrimesByCrimeCode(data);
+            if (submitterAction === "add-graph" && props.data && (formData.from !== currentStartYear || formData.to !== currentEndYear)) {
+                debugger;
+                setCurrentStartYear(formData.from);
+                setCurrentEndYear(formData.to);
+                const newData = [];
+                for (let i = 0; i < props.data.length; i++) {
+                    const crime = props.data[i].crime;
+                    const crimes = await GetNationalCrimesByCrimeCode({ crime, from: formData.from, to: formData.to });
+                    const crimeDataNodes: CrimeDataNode[] = []
+                    Object.keys(crimes).forEach((key: string) => {
+                        crimeDataNodes.push({
+                            year: Number(key),
+                            value: crimes[key]
+                        });
+                    });
+                    newData.push({
+                        crime,
+                        data: crimeDataNodes
+                    });
+                }
+                currentData = newData;
+            }
+            const crimes = await GetNationalCrimesByCrimeCode(formData);
 
             const crimeDataNodes: CrimeDataNode[] = []
             Object.keys(crimes).forEach((key: string) => {
@@ -78,17 +103,17 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
             });
             if (submitterAction === "add-graph") {
                 //check if the crime is already in the graph
-                const crimeIndex = props.data.findIndex((crime) => crime.crime === data.crime);
+                const crimeIndex = currentData.findIndex((crime) => crime.crime === formData.crime);
                 if (crimeIndex !== -1) {
-                    const crimeGraphs = [...props.data];
+                    const crimeGraphs = [...currentData];
                     crimeGraphs[crimeIndex].data = crimeDataNodes;
                     props.setData(crimeGraphs);
                     return;
                 }
                 const crimeGraphs: CrimeDataGraph[] = [
-                    ...props.data,
+                    ...currentData,
                     {
-                        crime: data.crime,
+                        crime: formData.crime,
                         data: crimeDataNodes
                     }
                 ];
@@ -97,7 +122,7 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
             }
             const crimeGraphs: CrimeDataGraph[] = [
                 {
-                    crime: data.crime,
+                    crime: formData.crime,
                     data: crimeDataNodes
                 }
             ];

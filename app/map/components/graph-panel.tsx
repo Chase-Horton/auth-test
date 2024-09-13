@@ -8,7 +8,7 @@ interface ChartDataItem {
     year: number;
     [key: string]: number
 }
-const COLORS = ["#2563eb", "#60a5fa"]
+const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"]
 function ChartComponent(props:GraphPanelProps) {
     const graphData = props.graphData;
     const chartLabels = graphData.map((data) => data.crime);

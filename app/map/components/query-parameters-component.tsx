@@ -2,7 +2,6 @@ import { CrimeDataGraph, MarkerData } from "@/lib/schemas/CDE";
 import GetAgenciesForm from "./get-agencies-form";
 import GetNationalArrestsForm from "./get-national-arrests-form";
 import GetNationalCrimeForm from "./get-national-crime-form";
-import { GraphParamterData } from "./graph-picker";
 interface QueryParametersPanelProps {
     queryState: string;
     startTransition: (callback: () => void) => void;

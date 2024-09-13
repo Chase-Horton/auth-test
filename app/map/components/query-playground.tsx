@@ -31,13 +31,10 @@ import {
 } from "@/components/ui/tooltip"
 
 import { CrimeDataGraph, MarkerData } from "@/lib/schemas/CDE"
-import GetAgenciesForm from "./get-agencies-form"
 import { useState, useTransition } from "react"
 import ReactMapBoxMap from "@/components/myui/map-box-react"
-import GetNationalCrimeForm from "./get-national-crime-form"
 import GraphPanel from "./graph-panel"
 import GraphPicker, { GraphParamterData } from "./graph-picker"
-import GetNationalArrestsForm from "./get-national-arrests-form"
 import QueryParametersPanel from "./query-parameters-component"
 
 export default function QueryDashboard() {

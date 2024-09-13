@@ -9,7 +9,7 @@ import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
 import { useEffect } from "react";
 import "highlight.js/styles/atom-one-dark.css";
-import {motion} from "framer-motion";
+import { motion } from "framer-motion";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
@@ -26,7 +26,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input";
-import { GetNationalArrestsByOffenseAll, GetNationalArrestsByOffenseCode } from "@/actions/CDE";
+import { GetNationalArrestsByOffenseAll } from "@/actions/CDE";
 import { useArrestDataStore, useGraphDataStore } from "@/data/stores";
 const CRIMES = validArrestOffenseCodes.map((crime) => {
     return {
@@ -41,7 +41,7 @@ interface NationalArrestsProps {
     data: CrimeDataGraph[];
 }
 export default function GetNationalArrestsForm(props: NationalArrestsProps) {
-    const arrestData  = useArrestDataStore((state) => state.allArrestData)
+    const arrestData = useArrestDataStore((state) => state.allArrestData)
     const arrestDataFrom = useArrestDataStore((state) => state.from)
     const arrestDataTo = useArrestDataStore((state) => state.to)
     const setArrestData = useArrestDataStore((state) => state.setAllArrestData)
@@ -77,51 +77,58 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
         })
         props.startTransition(async () => {
             let currentArrestData = arrestData;
-            debugger;
-            setArrestDataFrom(formData.from);
-            setArrestDataTo(formData.to);
+            const crimes: CrimeDataNode[] = [];
+            let currentArrestDataFrom = arrestDataFrom;
+            let currentArrestDataTo = arrestDataTo;
+            let newData = [...props.data];
             if (submitterAction === "add-graph") {
-                for (let i = 0; i < props.data.length; i++) {
-                    const offense = props.data[i].crime;
-                    let crimes: CrimeDataNode[] = [];
-                    if (arrestDataFrom >= formData.from && arrestDataTo <= formData.to) {
-                        for(let i = 0; i < arrestData.length; i++) {
-                            if(arrestData[i].year >= formData.from && arrestData[i].year <= formData.to) {
-                                const crime = arrestData[i].data.find((crime) => crime.offense === offense);
-                                if(crime) {
-                                    crimes.push({year:arrestData[i].year, value:crime.arrests});
-                                }
-                            }
-                        }
-                    } else {
-                        let arrestDataYears = await GetNationalArrestsByOffenseAll({ offense, from: formData.from, to: formData.to });
-                        setArrestData(arrestDataYears);
-                        currentArrestData = arrestDataYears;
-                    }
+                if (arrestDataFrom > formData.from || arrestDataTo < formData.to) {
+                    const arrestDataYears = await GetNationalArrestsByOffenseAll(formData);
+                    setArrestData(arrestDataYears);
+                    currentArrestData = arrestDataYears;
                 }
+                currentArrestDataFrom = formData.from;
+                currentArrestDataTo = formData.to;
+                setArrestDataFrom(formData.from);
+                setArrestDataTo(formData.to);
+                //map the current arrest data to new dataobject
+                const nodes: CrimeDataGraph[] = [];
+                for (let x = 0; x < props.data.length; x++) {
+                    const node:CrimeDataNode[] = [];
+                    for (let i = 0; i < currentArrestData.length; i++) {
+                        const crime = currentArrestData[i].data.find((crime) => crime.offense === props.data[x].crime);
+                        if (crime) {
+                            node.push({ year: currentArrestData[i].year, value: crime.arrests });
+                        }
+                    }
+                    nodes.push({ crime: props.data[x].crime, data: node });
+                }
+                newData = nodes;
             }
-            let crimes = [];
-            if (arrestData.length === 0) {
+            if (currentArrestData.length === 0 || currentArrestDataFrom > formData.from || currentArrestDataTo < formData.to) {
                 let arrestDataYears = await GetNationalArrestsByOffenseAll(formData);
                 setArrestData(arrestDataYears);
                 currentArrestData = arrestDataYears;
+                setArrestDataFrom(formData.from);
+                setArrestDataTo(formData.to);
             }
-            for(let i = 0; i < currentArrestData.length; i++) {
-                if(currentArrestData[i].year >= formData.from && currentArrestData[i].year <= formData.to) {
+
+            for (let i = 0; i < currentArrestData.length; i++) {
+                if (currentArrestData[i].year >= formData.from && currentArrestData[i].year <= formData.to) {
                     const crime = currentArrestData[i].data.find((crime) => crime.offense === formData.offense);
-                    if(crime) {
-                        crimes.push({year:currentArrestData[i].year, value:crime.arrests});
+                    if (crime) {
+                        crimes.push({ year: currentArrestData[i].year, value: crime.arrests });
                     }
                 }
             }
             if (submitterAction === "add-graph") {
-                const crimeIndex = props.data.findIndex((crime) => crime.crime === formData.offense);
+                const crimeIndex = newData.findIndex((crime) => crime.crime === formData.offense);
                 if (crimeIndex === -1) {
-                    props.setData([...props.data, { crime: formData.offense, data: crimes }]);
+                    props.setData([...newData, { crime: formData.offense, data: crimes }]);
                 } else {
-                    const newData = [...props.data];
+                    const newDataLst = [...newData];
                     newData[crimeIndex].data = crimes;
-                    props.setData(newData);
+                    props.setData(newDataLst);
                 }
                 return;
             }
@@ -135,120 +142,120 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
         });
     }
     return (
-        <motion.div 
-        initial={{scale:1}}
-        animate={{scale:1}}
+        <motion.div
+            initial={{ scale: 1 }}
+            animate={{ scale: 1 }}
         >
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-                <fieldset className="grid gap-6 rounded-lg border p-4" >
-                    <legend className="-ml-1 px-1 text-sm font-medium">
-                        Query Parameters
-                    </legend>
-                    <div className="grid gap-3">
-                        <FormField
-                            name="offense"
-                            control={form.control}
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                    <FormLabel>Offense</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild disabled={props.isPending}>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)}>
+                    <fieldset className="grid gap-6 rounded-lg border p-4" >
+                        <legend className="-ml-1 px-1 text-sm font-medium">
+                            Query Parameters
+                        </legend>
+                        <div className="grid gap-3">
+                            <FormField
+                                name="offense"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-col">
+                                        <FormLabel>Offense</FormLabel>
+                                        <Popover>
+                                            <PopoverTrigger asChild disabled={props.isPending}>
+                                                <FormControl>
+                                                    <Button
+                                                        variant="outline"
+                                                        role="combobox"
+                                                        className={cn(
+                                                            "w-full justify-between",
+                                                            !field.value && "text-muted-foreground"
+                                                        )}
+                                                    >
+                                                        {field.value
+                                                            ? CRIMES.find(
+                                                                (CRIMES) => CRIMES.value === field.value
+                                                            )?.label
+                                                            : "Select an offense"}
+                                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                    </Button>
+                                                </FormControl>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-[400px] p-0">
+                                                <Command>
+                                                    <CommandInput placeholder="Search crimes..." />
+                                                    <CommandList>
+                                                        <CommandEmpty>No offenses found.</CommandEmpty>
+                                                        <CommandGroup>
+                                                            {CRIMES.map((CRIMES) => (
+                                                                <CommandItem
+                                                                    value={CRIMES.label}
+                                                                    key={CRIMES.value}
+                                                                    onSelect={() => {
+                                                                        form.setValue("offense", CRIMES.value)
+                                                                    }}
+                                                                >
+                                                                    <Check
+                                                                        className={cn(
+                                                                            "mr-2 h-4 w-4",
+                                                                            CRIMES.value === field.value
+                                                                                ? "opacity-100"
+                                                                                : "opacity-0"
+                                                                        )}
+                                                                    />
+                                                                    {CRIMES.label}
+                                                                </CommandItem>
+                                                            ))}
+                                                        </CommandGroup>
+                                                    </CommandList>
+                                                </Command>
+                                            </PopoverContent>
+                                        </Popover>
+                                        <FormDescription>
+                                            This is the offense that all national arrests will be retrieved for.
+                                        </FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                            <div className="flex flex-row w-full gap-x-4">
+                                <FormField
+                                    name="from"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormLabel htmlFor="fromIn">From</FormLabel>
                                             <FormControl>
-                                                <Button
-                                                    variant="outline"
-                                                    role="combobox"
-                                                    className={cn(
-                                                        "w-full justify-between",
-                                                        !field.value && "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    {field.value
-                                                        ? CRIMES.find(
-                                                            (CRIMES) => CRIMES.value === field.value
-                                                        )?.label
-                                                        : "Select an offense"}
-                                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                                </Button>
+                                                <Input id="fromIn" {...field} type="number" disabled={props.isPending} />
                                             </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-[400px] p-0">
-                                            <Command>
-                                                <CommandInput placeholder="Search crimes..." />
-                                                <CommandList>
-                                                    <CommandEmpty>No offenses found.</CommandEmpty>
-                                                    <CommandGroup>
-                                                        {CRIMES.map((CRIMES) => (
-                                                            <CommandItem
-                                                                value={CRIMES.label}
-                                                                key={CRIMES.value}
-                                                                onSelect={() => {
-                                                                    form.setValue("offense", CRIMES.value)
-                                                                }}
-                                                            >
-                                                                <Check
-                                                                    className={cn(
-                                                                        "mr-2 h-4 w-4",
-                                                                        CRIMES.value === field.value
-                                                                            ? "opacity-100"
-                                                                            : "opacity-0"
-                                                                    )}
-                                                                />
-                                                                {CRIMES.label}
-                                                            </CommandItem>
-                                                        ))}
-                                                    </CommandGroup>
-                                                </CommandList>
-                                            </Command>
-                                        </PopoverContent>
-                                    </Popover>
-                                    <FormDescription>
-                                        This is the offense that all national arrests will be retrieved for.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                        <div className="flex flex-row w-full gap-x-4">
-                            <FormField
-                                name="from"
-                                control={form.control}
-                                render={({ field }) => (
-                                    <FormItem className="w-full">
-                                        <FormLabel htmlFor="fromIn">From</FormLabel>
-                                        <FormControl>
-                                            <Input id="fromIn" {...field} type="number" disabled={props.isPending} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )} />
-                            <FormField
-                                name="to"
-                                control={form.control}
-                                render={({ field }) => (
-                                    <FormItem className="w-full">
-                                        <FormLabel htmlFor="toIn">To</FormLabel>
-                                        <FormControl>
-                                            <Input id="toIn" type="number" {...field} disabled={props.isPending} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )} />
+                                            <FormMessage />
+                                        </FormItem>
+                                    )} />
+                                <FormField
+                                    name="to"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormLabel htmlFor="toIn">To</FormLabel>
+                                            <FormControl>
+                                                <Input id="toIn" type="number" {...field} disabled={props.isPending} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )} />
+                            </div>
                         </div>
-                    </div>
-                    <div className="flex flex-row w-full">
-                        {arrestData.length > 0 && graphTypeWhenSet == "arrests" && <Button type="submit" name="action" value="add-graph" disabled={props.isPending} className="w-[10rem] mr-4">
-                            {props.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {!props.isPending && <> Add to graph</>}
-                        </Button>}
-                        <Button type="submit" name="action" value="create-graph" disabled={props.isPending} className="w-full">
-                            {props.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {!props.isPending && arrestData.length === 0 && <> Submit</>}
-                            {!props.isPending && arrestData.length > 0 && <> Create new Graph</>}
-                        </Button>
-                    </div>
-                </fieldset>
-            </form>
-        </Form>
+                        <div className="flex flex-row w-full">
+                            {arrestData.length > 0 && graphTypeWhenSet == "arrests" && <Button type="submit" name="action" value="add-graph" disabled={props.isPending} className="w-[10rem] mr-4">
+                                {props.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                {!props.isPending && <> Add to graph</>}
+                            </Button>}
+                            <Button type="submit" name="action" value="create-graph" disabled={props.isPending} className="w-full">
+                                {props.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                {!props.isPending && arrestData.length === 0 && <> Submit</>}
+                                {!props.isPending && arrestData.length > 0 && <> Create new Graph</>}
+                            </Button>
+                        </div>
+                    </fieldset>
+                </form>
+            </Form>
         </motion.div>
     )
 }

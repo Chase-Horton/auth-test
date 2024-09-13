@@ -49,7 +49,7 @@ function LineChartComponent(props:GraphComponentProps) {
                     axisLine={false}
                     tickFormatter={(value) => value.toString()}
                 />
-                <ChartTooltip content={<ChartTooltipContent labelKey="year" hideLabel />} />
+                <ChartTooltip content={<ChartTooltipContent labelKey="year" hideLabel indicator="dot" />} />
                 <ChartLegend content={<ChartLegendContent />} />
                 {chartLabels.map((label, index) => (
                 <Line
@@ -79,7 +79,7 @@ function AreaChartComponent(props:GraphComponentProps) {
                     axisLine={false}
                     tickFormatter={(value) => value.toString()}
                 />
-                <ChartTooltip content={<ChartTooltipContent labelKey="year" hideLabel />} />
+                <ChartTooltip content={<ChartTooltipContent labelKey="year" hideLabel indicator="dot"/>} />
                 <ChartLegend content={<ChartLegendContent />} />
                 {chartLabels.map((label, index) => (
                 <Area

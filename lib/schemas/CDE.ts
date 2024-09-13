@@ -54,14 +54,19 @@ export const GetAgencyByStateSchema = z.object({
       message: `Invalid state code`,
     }),
   });
+//dont care about issue or ctx but need to fit the type
+//eslint-disable-next-line
+const customErrorMap: z.ZodErrorMap = (issue, ctx) => {
+  return {message:"Invalid year"};
+}
 export const GetNationalCrimeByCrimeSchema = z.object({
     crime: z.string().refine(value => validCrimeCodesNational.includes(value), {
       message: `Invalid crime code`,
     }),
-    from: z.coerce.number().int().min(1800, "Year must be greater than 1799").max(2022, "Year must be before 2023"),
-    to: z.coerce.number().int().min(1800, "Year must be greater than 1799").max(2022, "Year must be before 2023")
+    from: z.coerce.number({errorMap:customErrorMap}).int().min(1978, "Year must be greater than 1978").max(2022, "Year must be before 2023"),
+    to: z.coerce.number({errorMap:customErrorMap}).int().min(1978, "Year must be greater than 1978").max(2022, "Year must be before 2023")
 }).refine(data => data.from < data.to, {
-    message: "From year must be less than to year",
+    message: "End year must be greater than start year.",
     path: ["to"]
 });
 export type MarkerData = {

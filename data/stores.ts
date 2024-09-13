@@ -24,11 +24,16 @@ export const useArrestDataStore = create<allArrestDataStoreType>((set) => ({
     setFrom: (year:number) => set({from:year}),
     setTo: (year:number) => set({to:year}),
 }));
+type GraphTypeWhenSet = "estimates" | "arrests";
 type GraphDataStoreType = {
     graphData: CrimeDataGraph[];
     setGraphData: (data:CrimeDataGraph[]) => void;
+    graphTypeWhenSet: GraphTypeWhenSet;
+    setGraphTypeWhenSet: (type:"estimates" | "arrests") => void;
 }
 export const useGraphDataStore = create<GraphDataStoreType>((set) => ({
     graphData: [],
     setGraphData: (graphData:CrimeDataGraph[]) => set({graphData}),
+    graphTypeWhenSet: "estimates",
+    setGraphTypeWhenSet: (type:GraphTypeWhenSet) => set({graphTypeWhenSet:type}),
 }));

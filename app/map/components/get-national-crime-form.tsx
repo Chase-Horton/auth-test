@@ -7,7 +7,7 @@ import { Form, FormField, FormItem, FormControl, FormMessage, FormLabel, FormDes
 import { Button } from "@/components/ui/button";
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import "highlight.js/styles/atom-one-dark.css";
 import {motion} from "framer-motion";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react"
@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input";
 import { GetNationalCrimesByCrimeCode } from "@/actions/CDE";
+import { useGraphDataStore } from "@/data/stores";
 
 const CRIMES = tempDisplayCrimeCodes.map((crime) => {
     return {
@@ -43,6 +44,8 @@ interface NationalCrimeProps {
 export default function GetNationalCrimeForm(props: NationalCrimeProps) {
     const [currentStartYear, setCurrentStartYear] = useState(0);
     const [currentEndYear, setCurrentEndYear] = useState(0);
+    const graphTypeWhenSet = useGraphDataStore((state) => state.graphTypeWhenSet);
+    const setGraphTypeWhenSet = useGraphDataStore((state) => state.setGraphTypeWhenSet);
     useEffect(() => {
         hljs.registerLanguage('json', json);
     }, []);
@@ -56,6 +59,7 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
         if (event === undefined) {
             return;
         }
+        setGraphTypeWhenSet("estimates");
         event.preventDefault();
         //@ts-expect-error - submitter is not a valid property on BaseSyntheticEvent because it is any type, but it will be on a form event
         const submitterAction = event.nativeEvent.submitter.getAttribute("value");
@@ -230,7 +234,7 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
                         </div>
                     </div>
                     <div className="flex flex-row w-full">
-                        {props.data.length > 0 && <Button type="submit" name="action" value="add-graph" disabled={props.isPending} className="w-[10rem] mr-4">
+                        {props.data.length > 0 && graphTypeWhenSet == "estimates" && <Button type="submit" name="action" value="add-graph" disabled={props.isPending} className="w-[10rem] mr-4">
                             {props.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {!props.isPending && <> Add to graph</>}
                         </Button>}

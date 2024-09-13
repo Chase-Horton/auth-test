@@ -7,7 +7,7 @@ import { Form, FormField, FormItem, FormControl, FormMessage, FormLabel, FormDes
 import { Button } from "@/components/ui/button";
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import "highlight.js/styles/atom-one-dark.css";
 import {motion} from "framer-motion";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react"
@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input";
 import { GetNationalArrestsByOffenseAll, GetNationalArrestsByOffenseCode } from "@/actions/CDE";
-import { ArrestDataYear, useArrestDataStore } from "@/data/stores";
+import { useArrestDataStore, useGraphDataStore } from "@/data/stores";
 const CRIMES = validArrestOffenseCodes.map((crime) => {
     return {
         label: crime,
@@ -47,6 +47,8 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
     const setArrestData = useArrestDataStore((state) => state.setAllArrestData)
     const setArrestDataFrom = useArrestDataStore((state) => state.setFrom)
     const setArrestDataTo = useArrestDataStore((state) => state.setTo)
+    const graphTypeWhenSet = useGraphDataStore((state) => state.graphTypeWhenSet)
+    const setGraphTypeWhenSet = useGraphDataStore((state) => state.setGraphTypeWhenSet)
     useEffect(() => {
         hljs.registerLanguage('json', json);
     }, []);
@@ -57,6 +59,7 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
         },
     });
     async function onSubmit(formData: z.infer<typeof GetNationalArrestsByCrimeSchema>, event: React.BaseSyntheticEvent | undefined) {
+        setGraphTypeWhenSet("arrests");
         if (event === undefined) {
             return;
         }
@@ -73,6 +76,7 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
             ),
         })
         props.startTransition(async () => {
+            let currentArrestData = arrestData;
             debugger;
             setArrestDataFrom(formData.from);
             setArrestDataTo(formData.to);
@@ -92,22 +96,23 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
                     } else {
                         let arrestDataYears = await GetNationalArrestsByOffenseAll({ offense, from: formData.from, to: formData.to });
                         setArrestData(arrestDataYears);
+                        currentArrestData = arrestDataYears;
                     }
                 }
             }
             let crimes = [];
-            if (arrestDataFrom <= formData.from && arrestDataTo >= formData.to && arrestData.length > 0) {
-                for(let i = 0; i < arrestData.length; i++) {
-                    if(arrestData[i].year >= formData.from && arrestData[i].year <= formData.to) {
-                        const crime = arrestData[i].data.find((crime) => crime.offense === formData.offense);
-                        if(crime) {
-                            crimes.push({year:arrestData[i].year, value:crime.arrests});
-                        }
-                    }
-                }
-            } else {
+            if (arrestData.length === 0) {
                 let arrestDataYears = await GetNationalArrestsByOffenseAll(formData);
                 setArrestData(arrestDataYears);
+                currentArrestData = arrestDataYears;
+            }
+            for(let i = 0; i < currentArrestData.length; i++) {
+                if(currentArrestData[i].year >= formData.from && currentArrestData[i].year <= formData.to) {
+                    const crime = currentArrestData[i].data.find((crime) => crime.offense === formData.offense);
+                    if(crime) {
+                        crimes.push({year:currentArrestData[i].year, value:crime.arrests});
+                    }
+                }
             }
             if (submitterAction === "add-graph") {
                 const crimeIndex = props.data.findIndex((crime) => crime.crime === formData.offense);
@@ -231,7 +236,7 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
                         </div>
                     </div>
                     <div className="flex flex-row w-full">
-                        {arrestData.length > 0 && <Button type="submit" name="action" value="add-graph" disabled={props.isPending} className="w-[10rem] mr-4">
+                        {arrestData.length > 0 && graphTypeWhenSet == "arrests" && <Button type="submit" name="action" value="add-graph" disabled={props.isPending} className="w-[10rem] mr-4">
                             {props.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {!props.isPending && <> Add to graph</>}
                         </Button>}

@@ -30,7 +30,6 @@ function ChartComponent(props:GraphPanelProps) {
         }
         chartData.push(data);
     }
-    console.log(chartData);
     return (
         <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
             <BarChart data={chartData}>
@@ -42,13 +41,13 @@ function ChartComponent(props:GraphPanelProps) {
                     axisLine={false}
                     tickFormatter={(value) => value.toString()}
                 />
-                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartTooltip content={<ChartTooltipContent labelKey="year"/>} />
                 <ChartLegend content={<ChartLegendContent />} />
                 {chartLabels.map((label, index) => (
                 <Bar
                     key={index}
                     dataKey={label}
-                    fill={chartConfig[label].color} // Use color from chartConfig
+                    fill={chartConfig[label].color}
                     radius={4}
                 />
                 ))}

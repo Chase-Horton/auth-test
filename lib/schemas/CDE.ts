@@ -36,6 +36,19 @@ export const validCrimeCodesNational = [
     "rape",
     "property-crime"
 ]
+export const tempDisplayCrimeCodes = [
+  "aggravated-assault",
+  "violent-crime",
+  "robbery",
+  "arson",
+  "rape-legacy",
+  "homicide",
+  "burglary",
+  "motor-vehicle-theft",
+  "larceny",
+  "rape",
+  "property-crime"
+]
 export const GetAgencyByStateSchema = z.object({
     stateCode: z.string().refine(value => validStateCodes.includes(value), {
       message: `Invalid state code`,

@@ -1,4 +1,4 @@
-import { GetNationalCrimeByCrimeSchema, validCrimeCodesNational, CrimeDataGraph, CrimeDataNode } from "@/lib/schemas/CDE";
+import { GetNationalCrimeByCrimeSchema, tempDisplayCrimeCodes, CrimeDataGraph, CrimeDataNode } from "@/lib/schemas/CDE";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -28,7 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { GetNationalCrimesByCrimeCode } from "@/actions/CDE";
 
-const CRIMES = validCrimeCodesNational.map((crime) => {
+const CRIMES = tempDisplayCrimeCodes.map((crime) => {
     return {
         value: crime,
         label: crime.split("-").join(" ")
@@ -77,6 +77,14 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
                 });
             });
             if (submitterAction === "add-graph") {
+                //check if the crime is already in the graph
+                const crimeIndex = props.data.findIndex((crime) => crime.crime === data.crime);
+                if (crimeIndex !== -1) {
+                    const crimeGraphs = [...props.data];
+                    crimeGraphs[crimeIndex].data = crimeDataNodes;
+                    props.setData(crimeGraphs);
+                    return;
+                }
                 const crimeGraphs: CrimeDataGraph[] = [
                     ...props.data,
                     {
@@ -101,7 +109,7 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <fieldset className="grid gap-6 rounded-lg border p-4" >
                     <legend className="-ml-1 px-1 text-sm font-medium">
-                        Parameters
+                        Query Parameters
                     </legend>
                     <div className="grid gap-3">
                         <FormField
@@ -132,7 +140,7 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
                                         </PopoverTrigger>
                                         <PopoverContent className="w-[400px] p-0">
                                             <Command>
-                                                <CommandInput placeholder="Search language..." />
+                                                <CommandInput placeholder="Search crimes..." />
                                                 <CommandList>
                                                     <CommandEmpty>No states found.</CommandEmpty>
                                                     <CommandGroup>
@@ -200,7 +208,8 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
                         </Button>}
                         <Button type="submit" name="action" value="create-graph" disabled={props.isPending} className="w-full">
                             {props.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {!props.isPending && <> Submit</>}
+                            {!props.isPending && props.data.length === 0 && <> Submit</>}
+                            {!props.isPending && props.data.length > 0 && <> Create new Graph</>}
                         </Button>
                     </div>
                 </fieldset>

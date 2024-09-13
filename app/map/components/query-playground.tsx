@@ -36,12 +36,14 @@ import { useState, useTransition } from "react"
 import ReactMapBoxMap from "@/components/myui/map-box-react"
 import GetNationalCrimeForm from "./get-national-crime-form"
 import GraphPanel from "./graph-panel"
+import GraphPicker from "./graph-picker"
 
 export default function QueryDashboard() {
   const [queryState, setQueryState] = useState<string>("")
   const [isPending, startTransition] = useTransition()
   const [data, setData] = useState<MarkerData[]>([])
   const [graphData, setGraphData] = useState<CrimeDataGraph[]>([])
+  const [graphType, setGraphType] = useState<string>("bar")
   return (
     <TooltipProvider>
       <div className="grid h-screen w-full">
@@ -233,6 +235,7 @@ export default function QueryDashboard() {
                 </fieldset>
                 {queryState == "selectAgency" && <GetAgenciesForm startTransition={startTransition} isPending={isPending} setData={setData}/> }
                 {queryState == "selectNationalCrime" && <GetNationalCrimeForm startTransition={startTransition} isPending={isPending} setData={setGraphData} data={graphData}/> }
+                {queryState == "selectNationalCrime" && <GraphPicker setGraphType={setGraphType} graphType={graphType} />}
               </div>
             </div>
             <div className="relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-0 lg:col-span-2">
@@ -240,7 +243,7 @@ export default function QueryDashboard() {
                 Output
               </Badge>
               {queryState == "selectAgency" &&<ReactMapBoxMap markerData={data} />}
-              {queryState == "selectNationalCrime" && <GraphPanel graphData={graphData}/>}
+              {queryState == "selectNationalCrime" && <GraphPanel graphData={graphData} graphType={graphType}/>}
             </div>
           </main>
         </div>

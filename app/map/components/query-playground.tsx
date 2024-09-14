@@ -245,7 +245,7 @@ export default function QueryDashboard() {
                                 </span>
                               </p>
                               <p className="text-xs" data-description>
-                                  Get national arrests by offense name for a year range.
+                                  Get national yearly arrests by offense name for a year range.
                               </p>
                             </div>
                           </div>
@@ -261,7 +261,7 @@ export default function QueryDashboard() {
                                 </span>
                               </p>
                               <p className="text-xs" data-description>
-                                  Get national estimate for crimes by crime name for a year range.
+                                  Get national yearly estimate by crime name for a year range.
                               </p>
                             </div>
                           </div>

@@ -41,6 +41,7 @@ type GraphDataStoreType = {
         subtitle: string;
     }
     setPieChartGraphTitle: (title:string, subtitle:string) => void;
+    resetChart: () => void;
 }
 export const useGraphDataStore = create<GraphDataStoreType>((set) => ({
     graphData: [],
@@ -50,7 +51,7 @@ export const useGraphDataStore = create<GraphDataStoreType>((set) => ({
     pieChartData: [],
     setPieChartData: (data:ArrestData[]) => set({pieChartData:data}),
     graphParameterData: {
-        graphType: "bar",
+        graphType: "area",
         allGraphParameters: [
             {showLegend: true, showXAxis: false, showYAxis: false},
             {showLegend: true, showXAxis: false, showYAxis: true},
@@ -69,4 +70,19 @@ export const useGraphDataStore = create<GraphDataStoreType>((set) => ({
         subtitle: "",
     },
     setPieChartGraphTitle: (title:string, subtitle:string) => set({pieChartGraphTitleObj:{title, subtitle}}),
+    resetChart: () => set({pieChartData:[]}),
+}));
+type QueryUIStoreType = {
+    years: {
+        from: number;
+        to: number;
+    };
+    setYears: (from:number, to:number) => void;
+}
+export const useQueryUIStore = create<QueryUIStoreType>((set) => ({
+    years: {
+        from: 0,
+        to: 0,
+    },
+    setYears: (from:number, to:number) => set({years:{from, to}}),
 }));

@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input";
 import { GetNationalCrimesByCrimeCode } from "@/actions/CDE";
-import { useGraphDataStore } from "@/data/stores";
+import { useGraphDataStore, useQueryUIStore } from "@/data/stores";
 
 const CRIMES = tempDisplayCrimeCodes.map((crime) => {
     return {
@@ -42,6 +42,8 @@ interface NationalCrimeProps {
     data: CrimeDataGraph[];
 }
 export default function GetNationalCrimeForm(props: NationalCrimeProps) {
+    const queryUiYears = useQueryUIStore((state) => state.years);
+    const setQueryUiYears = useQueryUIStore((state) => state.setYears);
     const validGraphTypes = ["bar", "line", "area", "barStack"];
     const [currentStartYear, setCurrentStartYear] = useState(0);
     const [currentEndYear, setCurrentEndYear] = useState(0);
@@ -50,18 +52,26 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
     const graphParameterData = useGraphDataStore((state) => state.graphParameterData);
     const setGraphParameterData = useGraphDataStore((state) => state.setGraphParameterData);
     const graphType = graphParameterData.graphType;
+    const setTitleObj = useGraphDataStore((state) => state.setPieChartGraphTitle);
+    const resetPie = useGraphDataStore((state) => state.resetChart);
     useEffect(() => {
         hljs.registerLanguage('json', json);
     }, []);
     const form = useForm<z.infer<typeof GetNationalCrimeByCrimeSchema>>({
         resolver: zodResolver(GetNationalCrimeByCrimeSchema),
         defaultValues: {
-            crime: ""
+            crime: "",
+            from: queryUiYears.from || undefined,
+            to: queryUiYears.to || undefined,
         },
     });
     async function onSubmit(formData: z.infer<typeof GetNationalCrimeByCrimeSchema>, event: React.BaseSyntheticEvent | undefined) {
         if (event === undefined) {
             return;
+        }
+        setQueryUiYears(formData.from, formData.to);
+        if(graphTypeWhenSet !== "estimates"){
+            resetPie();
         }
         setGraphTypeWhenSet("estimates");
         event.preventDefault();
@@ -115,12 +125,14 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
                     const crimeGraphs = [...currentData];
                     crimeGraphs[crimeIndex].data = crimeDataNodes;
                     props.setData(crimeGraphs);
+                    setTitleObj("total estimated crime ", formData.from + " - " + formData.to);
                     if (!validGraphTypes.includes(graphType)){
                         setGraphParameterData({
                             ...graphParameterData,
                             graphType: "bar"
                         });
                     }
+                    
                     return;
                 }
                 const crimeGraphs: CrimeDataGraph[] = [
@@ -131,6 +143,7 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
                     }
                 ];
                 props.setData(crimeGraphs);
+                setTitleObj("total estimated crime ", formData.from + " - " + formData.to);
                 if (!validGraphTypes.includes(graphType)){
                     setGraphParameterData({
                         ...graphParameterData,
@@ -146,6 +159,7 @@ export default function GetNationalCrimeForm(props: NationalCrimeProps) {
                 }
             ];
             props.setData(crimeGraphs);
+            setTitleObj("total estimated crime ", formData.from + " - " + formData.to);
             if (!validGraphTypes.includes(graphType)){
                 setGraphParameterData({
                     ...graphParameterData,

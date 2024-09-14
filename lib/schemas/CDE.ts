@@ -142,8 +142,6 @@ export const NationalArrestByCategoryMapToOffenses = {
       "Rape",
       "Robbery",
       "Simple Assault",
-      "Human Trafficking - Commercial Sex Acts",
-      "Human Trafficking - Involuntary Servitude"
   ],
   "Property Crime": [
       "Motor Vehicle Theft",

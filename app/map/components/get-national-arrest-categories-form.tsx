@@ -1,4 +1,4 @@
-import { GetNationalArrestsByCategoryCodeSchema, ValidNationalArrestByCategoryCategories } from "@/lib/schemas/CDE";
+import { CrimeDataGraph, GetNationalArrestsByCategoryCodeSchema, ValidNationalArrestByCategoryCategories } from "@/lib/schemas/CDE";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input";
 import { GetNationalArrestsByOffenseCategory } from "@/actions/CDE";
-import { useArrestDataStore, useGraphDataStore } from "@/data/stores";
+import { useArrestDataStore, useGraphDataStore, useQueryUIStore } from "@/data/stores";
 const CRIMES = ValidNationalArrestByCategoryCategories.map((crime) => {
     return {
         label: crime,
@@ -37,11 +37,12 @@ const CRIMES = ValidNationalArrestByCategoryCategories.map((crime) => {
 interface NationalArrestsProps {
     startTransition: (callback: () => void) => void;
     isPending: boolean;
+    setData: (data: CrimeDataGraph[]) => void;
 }
 export default function GetNationalArrestsByCategoryForm(props: NationalArrestsProps) {
+    const queryUiYears = useQueryUIStore((state) => state.years);
+    const setQueryUiYears = useQueryUIStore((state) => state.setYears);
     const arrestData = useArrestDataStore((state) => state.allArrestData)
-    const arrestDataFrom = useArrestDataStore((state) => state.from)
-    const arrestDataTo = useArrestDataStore((state) => state.to)
     const setArrestData = useArrestDataStore((state) => state.setAllArrestData)
     const setArrestDataFrom = useArrestDataStore((state) => state.setFrom)
     const setArrestDataTo = useArrestDataStore((state) => state.setTo)
@@ -56,12 +57,19 @@ export default function GetNationalArrestsByCategoryForm(props: NationalArrestsP
     }, []);
     const form = useForm<z.infer<typeof GetNationalArrestsByCategoryCodeSchema>>({
         resolver: zodResolver(GetNationalArrestsByCategoryCodeSchema),
+        defaultValues: {
+            year: queryUiYears.from || undefined,
+        }
     });
     async function onSubmit(formData: z.infer<typeof GetNationalArrestsByCategoryCodeSchema>, event: React.BaseSyntheticEvent | undefined) {
-        setGraphTypeWhenSet("arrestsCategories");
         if (event === undefined) {
             return;
         }
+        setQueryUiYears(formData.year, queryUiYears.to);
+        if(graphTypeWhenSet != "arrestsCategories") {
+            props.setData([]);
+        }
+        setGraphTypeWhenSet("arrestsCategories");
         event.preventDefault();
         //@ts-expect-error - submitter is not a valid property on BaseSyntheticEvent because it is any type, but it will be on a form event
         const submitterAction = event.nativeEvent.submitter.getAttribute("value");
@@ -77,18 +85,14 @@ export default function GetNationalArrestsByCategoryForm(props: NationalArrestsP
         props.startTransition(async () => {
             if (submitterAction === "create-graph") {
                 let currentArrestData = arrestData;
-                let currentArrestDataFrom = arrestDataFrom;
-                let currentArrestDataTo = arrestDataTo;
                 formData.end = formData.year;
                 currentArrestData = await GetNationalArrestsByOffenseCategory(formData);
                 setArrestDataFrom(formData.year);
                 setArrestDataTo(formData.end);
                 setArrestData(currentArrestData);
-                currentArrestDataFrom = formData.year;
-                currentArrestDataTo = formData.end;
                 setPieChartData(currentArrestData[0].data);
                 setPieChartTitle(`Total Arrests for ${formData.category}`, `${formData.year}`);
-                let pieItems = ["pie", "donut", "radialBar", "barMixed", "radar"];
+                const pieItems = ["pie", "donut", "radialBar", "barMixed", "radar"];
                 if (!pieItems.includes(graphParameterData.graphType)) {
                     setGraphParameterData({
                         ...graphParameterData,

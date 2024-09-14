@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input";
 import { GetNationalArrestsByOffenseAll } from "@/actions/CDE";
-import { useArrestDataStore, useGraphDataStore } from "@/data/stores";
+import { useArrestDataStore, useGraphDataStore, useQueryUIStore } from "@/data/stores";
 const CRIMES = validArrestOffenseCodes.map((crime) => {
     return {
         label: crime,
@@ -41,6 +41,8 @@ interface NationalArrestsProps {
     data: CrimeDataGraph[];
 }
 export default function GetNationalArrestsForm(props: NationalArrestsProps) {
+    const queryUiYears = useQueryUIStore((state) => state.years);
+    const setQueryUiYears = useQueryUIStore((state) => state.setYears);
     const arrestData = useArrestDataStore((state) => state.allArrestData)
     const arrestDataFrom = useArrestDataStore((state) => state.from)
     const arrestDataTo = useArrestDataStore((state) => state.to)
@@ -53,16 +55,24 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
     const setGraphParameterData = useGraphDataStore((state) => state.setGraphParameterData);
     const validGraphTypes = ["bar", "barStack", "line", "area"];
     const graphParameterData = useGraphDataStore((state) => state.graphParameterData);
+    const setTitleObj = useGraphDataStore((state) => state.setPieChartGraphTitle);
+    const resetPie = useGraphDataStore((state) => state.resetChart);
     useEffect(() => {
         hljs.registerLanguage('json', json);
     }, []);
     const form = useForm<z.infer<typeof GetNationalArrestsByCrimeSchema>>({
         resolver: zodResolver(GetNationalArrestsByCrimeSchema),
         defaultValues: {
-            offense: ""
+            offense: "",
+            from: queryUiYears.from || undefined,
+            to: queryUiYears.to || undefined,
         },
     });
     async function onSubmit(formData: z.infer<typeof GetNationalArrestsByCrimeSchema>, event: React.BaseSyntheticEvent | undefined) {
+        setQueryUiYears(formData.from, formData.to);
+        if (graphTypeWhenSet !== "arrests") {
+            resetPie();
+        }
         setGraphTypeWhenSet("arrests");
         if (event === undefined) {
             return;
@@ -128,10 +138,12 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
             if (submitterAction === "add-graph") {
                 const crimeIndex = newData.findIndex((crime) => crime.crime === formData.offense);
                 if (crimeIndex === -1) {
+                    setTitleObj("total arrests", `${formData.from} - ${formData.to}`);
                     props.setData([...newData, { crime: formData.offense, data: crimes }]);
                 } else {
                     const newDataLst = [...newData];
                     newData[crimeIndex].data = crimes;
+                    setTitleObj("total arrests", `${formData.from} - ${formData.to}`);
                     props.setData(newDataLst);
                     if (!validGraphTypes.includes(graphType)){
                         setGraphParameterData({
@@ -148,6 +160,7 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
                     data: crimes
                 }
             ];
+            setTitleObj("total arrests", `${formData.from} - ${formData.to}`);
             props.setData(crimeGraphs);
             if (!validGraphTypes.includes(graphType)){
                 setGraphParameterData({

@@ -18,7 +18,7 @@ export default function QueryParametersPanel(props: QueryParametersPanelProps) {
             {queryState == "selectAgency" && <GetAgenciesForm startTransition={startTransition} isPending={isPending} setData={setMarkerData}/> }
             {queryState == "selectNationalCrime" && <GetNationalCrimeForm startTransition={startTransition} isPending={isPending} setData={setGraphData} data={graphData}/> }
             {queryState == "selectNationalArrests" && <GetNationalArrestsForm startTransition={startTransition} isPending={isPending} setData={setGraphData} data={graphData}/> }
-            {queryState == "selectNationalArrestCategories" && <GetNationalArrestsByCategoryForm startTransition={startTransition} isPending={isPending} /> }
+            {queryState == "selectNationalArrestCategories" && <GetNationalArrestsByCategoryForm startTransition={startTransition} isPending={isPending} setData={setGraphData} /> }
         </div>
     )
 }

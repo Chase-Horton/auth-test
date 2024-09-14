@@ -4,7 +4,6 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { AnimatePresence, motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator"
 import { useState } from "react";
-import { GraphParamterData } from "./graph-picker-pie";
 import { useGraphDataStore } from "@/data/stores";
 const container = {
     hidden: { opacity: 1, scale: 0, height: 0, overflow: "hidden" },
@@ -29,7 +28,7 @@ export default function GraphPicker() {
     const graphParameterData = useGraphDataStore((state) => state.graphParameterData);
     const setGraphParameterData = useGraphDataStore((state) => state.setGraphParameterData);
     const [advanced, setAdvanced] = useState(false);
-    const chartTypes = ["bar", "line", "area", "barStack"];
+    const chartTypes = ["bar", "line", "area", "barStack", "pie", "radar", "barMixed", "donut", "radialBar"];
     const indexOfType = chartTypes.indexOf(graphParameterData.graphType);
     const paramData = graphParameterData.allGraphParameters[indexOfType];
     function onLegendChanged(checked: boolean | "indeterminate", paramValue: "showLegend" | "showXAxis" | "showYAxis") {

@@ -4,9 +4,9 @@ import { Bar, BarChart, XAxis, Line, LineChart, AreaChart, Area, CartesianGrid, 
 
 import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { CrimeDataGraph } from "@/lib/schemas/CDE"
-import { GraphParameters, GraphParamterData } from "./graph-picker-pie";
+import { GraphParameters } from "./graph-picker-pie";
 import { ArrestData, useGraphDataStore } from "@/data/stores";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMemo } from "react";
 interface ChartDataItem {
     year: string;
@@ -17,7 +17,13 @@ const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3
 function BarChartComponent(props: GraphComponentProps) {
     const { chartData, chartConfig, chartLabels } = props;
     const params = props.params;
+    const { title, subtitle } = useGraphDataStore((state) => state.pieChartGraphTitleObj);
     return (
+        <div className="min-h-[200px] h-full w-full flex flex-col">
+        <CardHeader>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{subtitle}</CardDescription>
+        </CardHeader>
         <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
             <BarChart data={chartData}
                 margin={{
@@ -45,12 +51,19 @@ function BarChartComponent(props: GraphComponentProps) {
                 ))}
             </BarChart>
         </ChartContainer>
+        </div>
     )
 }
 function StackedBarChartComponent(props: GraphComponentProps) {
     const { chartData, chartConfig, chartLabels } = props;
     const params = props.params;
+    const { title, subtitle } = useGraphDataStore((state) => state.pieChartGraphTitleObj);
     return (
+        <div className="min-h-[200px] h-full w-full flex flex-col">
+        <CardHeader>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{subtitle}</CardDescription>
+        </CardHeader>
         <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
             <BarChart data={chartData}
                 margin={{
@@ -88,12 +101,19 @@ function StackedBarChartComponent(props: GraphComponentProps) {
                 })}
             </BarChart>
         </ChartContainer>
+        </div>
     )
 }
 function LineChartComponent(props: GraphComponentProps) {
     const { chartData, chartConfig, chartLabels } = props;
     const params = props.params;
+    const { title, subtitle } = useGraphDataStore((state) => state.pieChartGraphTitleObj);
     return (
+        <div className="min-h-[200px] h-full w-full flex flex-col">
+        <CardHeader>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{subtitle}</CardDescription>
+        </CardHeader>
         <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
             <LineChart data={chartData}
                 margin={{
@@ -108,7 +128,6 @@ function LineChartComponent(props: GraphComponentProps) {
                     tickMargin={10}
                     axisLine={false}
                     tickFormatter={(value) => value.toString()}
-                    padding={{ left: 12, right: 12 }}
                 />
                 <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
                 {params.showLegend && <ChartLegend content={<ChartLegendContent />} />}
@@ -123,6 +142,7 @@ function LineChartComponent(props: GraphComponentProps) {
                 ))}
             </LineChart>
         </ChartContainer>
+        </div>
     )
 }
 interface Average {
@@ -130,7 +150,13 @@ interface Average {
 }
 function AreaChartComponent(props: GraphComponentProps) {
     const { chartData, chartConfig, chartLabels } = props;
+    const { title, subtitle } = useGraphDataStore((state) => state.pieChartGraphTitleObj);
     return (
+        <div className="min-h-[200px] h-full w-full flex flex-col">
+        <CardHeader>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{subtitle}</CardDescription>
+        </CardHeader>
         <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
             <AreaChart data={chartData}
                 margin={{
@@ -162,9 +188,12 @@ function AreaChartComponent(props: GraphComponentProps) {
                 ))}
             </AreaChart>
         </ChartContainer>
+        </div>
     )
 }
 type ArrestDataChart = ArrestData & { fill: string }
+//will use props eventually
+//eslint-disable-next-line
 function PieChartComponent(_props: { showLegend: boolean }) {
     const { title, subtitle } = useGraphDataStore((state) => state.pieChartGraphTitleObj);
     const chartData: ArrestDataChart[] = [];
@@ -212,6 +241,8 @@ function PieChartComponent(_props: { showLegend: boolean }) {
         </div>
     )
 }
+//will use props eventually
+//eslint-disable-next-line
 function RadarChartComponent(_props: { showLegend: boolean }) {
     const chartData: ArrestData[] = [];
     const chartConfig: ChartConfig = {};
@@ -251,6 +282,8 @@ function RadarChartComponent(_props: { showLegend: boolean }) {
         </div>
     )
 }
+//will use props eventually
+//eslint-disable-next-line
 function DonutChartComponent(_props: { showLegend: boolean }) {
     const { title, subtitle } = useGraphDataStore((state) => state.pieChartGraphTitleObj);
     const chartData: ArrestDataChart[] = [];
@@ -299,6 +332,8 @@ function DonutChartComponent(_props: { showLegend: boolean }) {
         </div>
     )
 }
+//will use props eventually
+//eslint-disable-next-line
 function RadialBarChartComponent(_props: { showLegend: boolean }) {
     const { title, subtitle } = useGraphDataStore((state) => state.pieChartGraphTitleObj);
     const chartData: ArrestDataChart[] = [];
@@ -349,7 +384,9 @@ function RadialBarChartComponent(_props: { showLegend: boolean }) {
         </div>
     )
 }
-function BarChartMixedComponent(props: { showLegend: boolean }) {
+//will use props eventually
+//eslint-disable-next-line
+function BarChartMixedComponent(_props: { showLegend: boolean }) {
     const chartData: ArrestDataChart[] = [];
     const chartConfig: ChartConfig = { arrests: { label: "arrests" } };
     const pieChartData = useGraphDataStore((state) => state.pieChartData);
@@ -410,7 +447,7 @@ interface GraphPanelProps {
 export default function GraphPanel(props: GraphPanelProps) {
     const graphData = props.graphData;
     const graphParameterData = useGraphDataStore((state) => state.graphParameterData);
-    const chartLabels = graphData.map((data) => data.crime);
+    const chartLabels = graphData.map((data) => data.crime.toLocaleLowerCase());
     const chartValues = graphData.map((data) => data.data);
     const chartConfig: ChartConfig = {};
     for (let i = 0; i < chartLabels.length; i++) {

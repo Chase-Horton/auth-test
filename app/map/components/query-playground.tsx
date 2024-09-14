@@ -5,6 +5,9 @@ import {
   Settings,
   Share,
   Turtle,
+  MapIcon,
+  LineChartIcon,
+  PieChartIcon,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -31,20 +34,34 @@ import {
 } from "@/components/ui/tooltip"
 
 import { CrimeDataGraph, MarkerData } from "@/lib/schemas/CDE"
-import { useState, useTransition } from "react"
+import { useRef, useState, useTransition } from "react"
 import ReactMapBoxMap from "@/components/myui/map-box-react"
 import GraphPanel from "./graph-panel"
 import GraphPickerPie from "./graph-picker-pie"
 import QueryParametersPanel from "./query-parameters-component"
 import GraphPicker from "./graph-picker"
-
+import { toPng } from "html-to-image"
 export default function QueryDashboard() {
+  const printRef = useRef(null);
+
+  const htmlToImageConvert = () => {
+    if (!printRef.current) return;
+    toPng(printRef.current, { cacheBust: false })
+      .then((dataUrl) => {
+        const link = document.createElement("a");
+        link.download = "chart-export.png";
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   const [queryState, setQueryState] = useState<string>("")
   const [isPending, startTransition] = useTransition()
   const [data, setData] = useState<MarkerData[]>([])
   const [graphData, setGraphData] = useState<CrimeDataGraph[]>([])
   const handleSelect = (value:string) => {
-    console.log(value)
     setQueryState(value)
   }
   return (
@@ -176,9 +193,10 @@ export default function QueryDashboard() {
               variant="outline"
               size="sm"
               className="ml-auto gap-1.5 text-sm"
+              onClick={htmlToImageConvert}
             >
               <Share className="size-3.5" />
-              Share
+              Export
             </Button>
           </header>
           <main className="grid flex-1 gap-4 overflow-auto p-4 md:grid-cols-2 lg:grid-cols-3">
@@ -202,7 +220,7 @@ export default function QueryDashboard() {
                       <SelectContent>
                         <SelectItem value="selectAgency">
                           <div className="flex items-start gap-3 text-muted-foreground">
-                            <Bird className="size-5" />
+                            <MapIcon className="size-5" />
                             <div className="grid gap-0.5">
                               <p>
                                 GET{" "}
@@ -216,50 +234,50 @@ export default function QueryDashboard() {
                             </div>
                           </div>
                         </SelectItem>
-                        <SelectItem value="selectNationalCrime">
+                        <SelectItem value="selectNationalArrests">
                           <div className="flex items-start gap-3 text-muted-foreground">
-                            <Bird className="size-5" />
+                            <LineChartIcon className="size-5" />
                             <div className="grid gap-0.5">
                               <p>
                                 GET{" "}
                                 <span className="font-medium text-foreground">
-                                  national estimates
+                                  total arrests
                                 </span>
                               </p>
                               <p className="text-xs" data-description>
-                                  Get national estimate for crimes by crime name
+                                  Get national arrests by offense name for a year range.
                               </p>
                             </div>
                           </div>
                         </SelectItem>
-                        <SelectItem value="selectNationalArrests">
+                        <SelectItem value="selectNationalCrime">
                           <div className="flex items-start gap-3 text-muted-foreground">
-                            <Bird className="size-5" />
+                            <LineChartIcon className="size-5" />
                             <div className="grid gap-0.5">
                               <p>
                                 GET{" "}
                                 <span className="font-medium text-foreground">
-                                  national arrests
+                                  total estimates
                                 </span>
                               </p>
                               <p className="text-xs" data-description>
-                                  Get national arrests by offense name
+                                  Get national estimate for crimes by crime name for a year range.
                               </p>
                             </div>
                           </div>
                         </SelectItem>
                         <SelectItem value="selectNationalArrestCategories">
                           <div className="flex items-start gap-3 text-muted-foreground">
-                            <Rabbit className="size-5" />
+                            <PieChartIcon className="size-5" />
                             <div className="grid gap-0.5">
                               <p>
-                                SELECT{" "}
+                                GET{" "}
                                 <span className="font-medium text-foreground">
-                                  national arrest categories by year
+                                  total arrests by category
                                 </span>
                               </p>
                               <p className="text-xs" data-description>
-                                  Get national arrests by offense name
+                                  Get total national arrests by category name for a year.
                               </p>
                             </div>
                           </div>
@@ -269,13 +287,13 @@ export default function QueryDashboard() {
                   </div>
                 </fieldset>
                 <QueryParametersPanel queryState={queryState} startTransition={startTransition} isPending={isPending} setMarkerData={setData} setGraphData={setGraphData} graphData={graphData}/>
-                {queryState != "selectAgency" && queryState != "selectNationalArrestCategories" && <GraphPicker />}
+                {queryState != "selectAgency" && queryState != "selectNationalArrestCategories" && queryState != "" && <GraphPicker />}
                 {queryState == "selectNationalArrestCategories" && <GraphPickerPie />}
               </div>
             </div>
-            <div className="relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-0 lg:col-span-2">
+            <div ref={printRef} className="relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-0 lg:col-span-2">
               <Badge variant="outline" className="absolute right-3 top-3 z-10 bg-secondary">
-                {queryState != "selectNationalCrime" ? "Output" : "victims per 100k"}
+                {queryState ==="selectNationalCrime" ? "victims per 100k" : "output"}
               </Badge>
               {queryState == "selectAgency" &&<ReactMapBoxMap markerData={data} />}
               {queryState != "selectAgency" && <GraphPanel graphData={graphData} />}

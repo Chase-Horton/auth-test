@@ -85,9 +85,9 @@ export default function GraphPickerPie() {
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
-                        <div className="flex flex-col justify-center items-end w-1/4">
+                        <div className="flex flex-col justify-center items-end w-1/4 opacity-70 cursor-not-allowed">
                             <div className="flex space-x-2">
-                                <Checkbox id="advanced" checked={advanced} onCheckedChange={(checked) => { if (checked !== "indeterminate") setAdvanced(checked) }} />
+                                <Checkbox id="advanced" disabled={true} checked={advanced} onCheckedChange={(checked) => { if (checked !== "indeterminate") setAdvanced(checked) }} />
                                 <label
                                     htmlFor="advanced"
                                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

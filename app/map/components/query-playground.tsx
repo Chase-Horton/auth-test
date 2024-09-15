@@ -320,7 +320,7 @@ export default function QueryDashboard() {
                 </fieldset>
                 <QueryParametersPanel queryState={queryState} startTransition={startTransition} isPending={isPending} setMarkerData={setData} setGraphData={setGraphData} graphData={graphData}/>
                 {queryState != "selectAgency" && queryState != "selectNationalArrestCategories" && queryState != "selectNationalExpandedHomicide" && queryState != "" && <GraphPicker />}
-                {queryState == "selectNationalArrestCategories" || queryState == "selectNationalExpandedHomicide" && <GraphPickerPie />}
+                {(queryState == "selectNationalArrestCategories" || queryState == "selectNationalExpandedHomicide") && <GraphPickerPie />}
               </div>
             </div>
             <div ref={printRef} className="relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-0 lg:col-span-2">

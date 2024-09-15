@@ -260,7 +260,7 @@ export default function QueryDashboard() {
                                   total estimates
                                 </span>
                               </p>
-                              <p className="text-xs" data-description>
+                              <p className="text-xs" data-description>     
                                   Get national yearly estimates by crime name for a year range.
                               </p>
                             </div>
@@ -277,7 +277,23 @@ export default function QueryDashboard() {
                                 </span>
                               </p>
                               <p className="text-xs" data-description>
-                                  Get national yearly estimates for a crime by state name for a year range.
+                                  State-specific yearly estimates by crime and time range.
+                              </p>
+                            </div>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="selectNationalExpandedHomicide">
+                          <div className="flex items-start gap-3 text-muted-foreground">
+                            <PieChartIcon className="size-5" />
+                            <div className="grid gap-0.5">
+                              <p>
+                              GET{" "}
+                                <span className="font-medium text-foreground">
+                                  homicide data
+                                </span>
+                              </p>
+                              <p className="text-xs" data-description>
+                                  Expanded national homicide data from SRS and NIBRS reports for a specific year.
                               </p>
                             </div>
                           </div>
@@ -287,13 +303,13 @@ export default function QueryDashboard() {
                             <PieChartIcon className="size-5" />
                             <div className="grid gap-0.5">
                               <p>
-                                GET{" "}
+                                arrests{" "}
                                 <span className="font-medium text-foreground">
-                                  total arrests by category
+                                  by category
                                 </span>
                               </p>
                               <p className="text-xs" data-description>
-                                  Get total national arrests by category name for a year.
+                                  National arrests by category for a specific year.
                               </p>
                             </div>
                           </div>
@@ -303,8 +319,8 @@ export default function QueryDashboard() {
                   </div>
                 </fieldset>
                 <QueryParametersPanel queryState={queryState} startTransition={startTransition} isPending={isPending} setMarkerData={setData} setGraphData={setGraphData} graphData={graphData}/>
-                {queryState != "selectAgency" && queryState != "selectNationalArrestCategories" && queryState != "" && <GraphPicker />}
-                {queryState == "selectNationalArrestCategories" && <GraphPickerPie />}
+                {queryState != "selectAgency" && queryState != "selectNationalArrestCategories" && queryState != "selectNationalExpandedHomicide" && queryState != "" && <GraphPicker />}
+                {queryState == "selectNationalArrestCategories" || queryState == "selectNationalExpandedHomicide" && <GraphPickerPie />}
               </div>
             </div>
             <div ref={printRef} className="relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-0 lg:col-span-2">

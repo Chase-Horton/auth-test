@@ -1,7 +1,7 @@
 "use server"
 import { z } from "zod"
-import { ArrestCategory, cdeAgenciesResponse, GetAgencyByStateSchema, GetNationalArrestsByCategoryCodeSchema, GetNationalArrestsByCrimeSchema, GetNationalCrimeByCrimeSchema, GetNationalCrimeByStateSchema, NationalArrestByCategoryMapToOffenses, validArrestOffenseCodes } from "@/lib/schemas/CDE"
-import { ArrestData, ArrestDataYear } from "@/data/stores";
+import { ArrestCategory, cdeAgenciesResponse, GetAgencyByStateSchema, GetExpandedHomicideCollectionSchema, GetNationalArrestsByCategoryCodeSchema, GetNationalArrestsByCrimeSchema, GetNationalCrimeByCrimeSchema, GetNationalCrimeByStateSchema, NationalArrestByCategoryMapToOffenses, validArrestOffenseCodes, validExpandedHomicideCollectionCategories } from "@/lib/schemas/CDE"
+import { PieTypeData, PieTypeDataYear } from "@/data/stores";
 
 export async function GetAgenciesByStateCode(values: z.infer<typeof GetAgencyByStateSchema>): Promise<cdeAgenciesResponse[]> {
     const stateCode = values.stateCode;
@@ -40,7 +40,7 @@ type NationalArrestNode = {
     data_year: number;
     [key: string]: number;
 }
-export async function GetNationalArrestsByOffenseAll(values: z.infer<typeof GetNationalArrestsByCrimeSchema>): Promise<ArrestDataYear[]> {
+export async function GetNationalArrestsByOffenseAll(values: z.infer<typeof GetNationalArrestsByCrimeSchema>): Promise<PieTypeDataYear[]> {
     const from = values.from;
     const to = values.to;
     const queryURL = `https://api.usa.gov/crime/fbi/cde/arrest/national/all?from=${from}&to=${to}&API_KEY=${process.env.CDE_API_KEY}`
@@ -50,9 +50,9 @@ export async function GetNationalArrestsByOffenseAll(values: z.infer<typeof GetN
     if (data === undefined) {
         return [];
     }
-    const returnData: ArrestDataYear[] = [];
+    const returnData: PieTypeDataYear[] = [];
     data.forEach((element: NationalArrestNode) => {
-        let offenseData: ArrestData[] = [];
+        let offenseData: PieTypeData[] = [];
         validArrestOffenseCodes.forEach((offense) => {
             offenseData.push({
                 offense: offense,
@@ -66,7 +66,7 @@ export async function GetNationalArrestsByOffenseAll(values: z.infer<typeof GetN
     });
     return returnData;
 }
-export async function GetNationalArrestsByOffenseCategory(values: z.infer<typeof GetNationalArrestsByCategoryCodeSchema>): Promise<ArrestDataYear[]> {
+export async function GetNationalArrestsByOffenseCategory(values: z.infer<typeof GetNationalArrestsByCategoryCodeSchema>): Promise<PieTypeDataYear[]> {
     const from = values.year;
     const to = values.end;
     const category:ArrestCategory = values.category;
@@ -77,9 +77,9 @@ export async function GetNationalArrestsByOffenseCategory(values: z.infer<typeof
     if (data === undefined) {
         return [];
     }
-    const returnData: ArrestDataYear[] = [];
+    const returnData: PieTypeDataYear[] = [];
     data.forEach((element: NationalArrestNode) => {
-        let offenseData: ArrestData[] = [];
+        let offenseData: PieTypeData[] = [];
         NationalArrestByCategoryMapToOffenses[category].forEach((offense) => {
             offenseData.push({
                 offense: offense,
@@ -91,5 +91,36 @@ export async function GetNationalArrestsByOffenseCategory(values: z.infer<typeof
             data: offenseData
         })
     });
+    return returnData;
+}
+export async function GetExpandedHomicideCollection(values: z.infer<typeof GetExpandedHomicideCollectionSchema>): Promise<PieTypeDataYear[]> {
+    const from = values.year;
+    const category:validExpandedHomicideCollectionCategories = values.category;
+    const queryURL = `https://api.usa.gov/crime/fbi/cde/shr/national/${category}/${values.variable}?from=${from}&to=${from}&API_KEY=${process.env.CDE_API_KEY}`
+    const response = await fetch(queryURL);
+    const result = await response.json();
+    const keys = result["keys"]
+    if (keys.includes("Multiple")) {
+        keys.splice(keys.indexOf("Multiple"), 1)
+    }
+    let data = result["data"]
+    if (data === undefined) {
+        return [];
+    }
+    data = data[0];
+    const returnData: PieTypeDataYear[] = [];
+    let offenseData: PieTypeData[] = [];
+    keys.forEach((key: string) => {
+        if (data[key] != 0) {
+            offenseData.push({
+                offense: key,
+                arrests: data[key]
+            })
+        }
+    });
+    returnData.push({
+        year: from,
+        data: offenseData
+    })
     return returnData;
 }

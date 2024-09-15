@@ -199,10 +199,34 @@ export const NationalArrestByCategoryMapToOffenses = {
       "Prostitution and Commercialized Vice",
   ],
 }
-const ArrestCategorySchema = z.enum(["Violent Crime", "Property Crime", "Society", "Drug Sales", "Gambling", "Prostitution"])
+const ArrestCategorySchema = z.enum(["Violent Crime", "Property Crime", "Society", "Drug Sales", "Gambling", "Prostitution"], {message:"Invalid category"})
 export type ArrestCategory = z.infer<typeof ArrestCategorySchema>
 export const GetNationalArrestsByCategoryCodeSchema = z.object({
   year: z.coerce.number({errorMap:customErrorMap}).int().min(1979, "Year must be greater than 1978").max(2022, "Year must be before 2023"),
   end: z.number().int().min(1979, "Year must be greater than 1978").max(2022, "Year must be before 2023").optional(),
   category: ArrestCategorySchema,
+})
+const validExpandedHomicideCollectionCategoriesSchema = z.enum(["offender", "victim"], {message:"Invalid category"})
+export type validExpandedHomicideCollectionCategories = z.infer<typeof validExpandedHomicideCollectionCategoriesSchema>
+export const validExpandedHomicideVariables = {
+  offender: [
+    "age",
+    "ethnicity",
+    "race",
+    "sex",
+  ],
+  victim: [
+    "age",
+    "ethnicity",
+    "race",
+    "sex",
+    "circumstance",
+    "relationship",
+    "weapon",
+  ]
+}
+export const GetExpandedHomicideCollectionSchema = z.object({
+  year: z.coerce.number({errorMap:customErrorMap}).int().min(1976, "Year must be greater than 1975").max(2020, "Year must be before 2021"),
+  category: validExpandedHomicideCollectionCategoriesSchema,
+  variable: z.string()
 })

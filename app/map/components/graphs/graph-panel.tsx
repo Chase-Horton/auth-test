@@ -5,7 +5,7 @@ import { Bar, BarChart, XAxis, Line, LineChart, AreaChart, Area, CartesianGrid, 
 import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { CrimeDataGraph } from "@/lib/schemas/CDE"
 import { GraphParameters } from "./graph-picker-pie";
-import { ArrestData, useGraphDataStore } from "@/data/stores";
+import { PieTypeData, useGraphDataStore } from "@/data/stores";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useMemo, useState } from "react";
 interface ChartDataItem {
@@ -191,7 +191,7 @@ function AreaChartComponent(props: GraphComponentProps) {
         </div>
     )
 }
-type ArrestDataChart = ArrestData & { fill: string }
+type ArrestDataChart = PieTypeData & { fill: string }
 //will use props eventually
 //eslint-disable-next-line
 function PieChartComponent({ showLegend }: { showLegend: boolean }) {
@@ -255,7 +255,7 @@ function PieChartComponent({ showLegend }: { showLegend: boolean }) {
 //will use props eventually
 //eslint-disable-next-line
 function RadarChartComponent({ showLegend }: { showLegend: boolean }) {
-    const [chartData, setChartData] = useState<ArrestData[]>([]);
+    const [chartData, setChartData] = useState<PieTypeData[]>([]);
     const [chartConfig, setChartConfig] = useState<ChartConfig>({});
     const { title, subtitle } = useGraphDataStore((state) => state.pieChartGraphTitleObj);
     const pieChartData = useGraphDataStore((state) => state.pieChartData);

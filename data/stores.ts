@@ -1,18 +1,18 @@
 import { CrimeDataGraph } from '@/lib/schemas/CDE';
 import { GraphParamterData } from '@/app/map/components/graphs/graph-picker-pie';
 import {create} from 'zustand';
-export type ArrestData = {
+export type PieTypeData = {
     offense: string;
     arrests: number;
 }
 //TODO should replace data with an object that has key offense value arrests
-export type ArrestDataYear = {
+export type PieTypeDataYear = {
     year: number;
-    data: ArrestData[];
+    data: PieTypeData[];
 }
 type allArrestDataStoreType = {
-    allArrestData: ArrestDataYear[];
-    setAllArrestData: (data:ArrestDataYear[]) => void;
+    allArrestData: PieTypeDataYear[];
+    setAllArrestData: (data:PieTypeDataYear[]) => void;
     from: number;
     setFrom: (year:number) => void;
     to: number;
@@ -22,7 +22,7 @@ export const useArrestDataStore = create<allArrestDataStoreType>((set) => ({
     allArrestData: [],
     from: 0,
     to: 0,
-    setAllArrestData: (data:ArrestDataYear[]) => set({allArrestData:data}),
+    setAllArrestData: (data:PieTypeDataYear[]) => set({allArrestData:data}),
     setFrom: (year:number) => set({from:year}),
     setTo: (year:number) => set({to:year}),
 }));
@@ -32,8 +32,8 @@ type GraphDataStoreType = {
     setGraphData: (data:CrimeDataGraph[]) => void;
     graphTypeWhenSet: GraphTypeWhenSet;
     setGraphTypeWhenSet: (type:GraphTypeWhenSet) => void;
-    pieChartData: ArrestData[];
-    setPieChartData: (data:ArrestData[]) => void;
+    pieChartData: PieTypeData[];
+    setPieChartData: (data:PieTypeData[]) => void;
     graphParameterData: GraphParamterData;
     setGraphParameterData: (data:GraphParamterData) => void;
     pieChartGraphTitleObj: {
@@ -49,7 +49,7 @@ export const useGraphDataStore = create<GraphDataStoreType>((set) => ({
     graphTypeWhenSet: "estimates",
     setGraphTypeWhenSet: (type:GraphTypeWhenSet) => set({graphTypeWhenSet:type}),
     pieChartData: [],
-    setPieChartData: (data:ArrestData[]) => set({pieChartData:data}),
+    setPieChartData: (data:PieTypeData[]) => set({pieChartData:data}),
     graphParameterData: {
         graphType: "area",
         allGraphParameters: [

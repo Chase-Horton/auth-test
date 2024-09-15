@@ -22,7 +22,6 @@ interface ReactMapBoxMapProps{
 }
 export default function ReactMapBoxMap(props:ReactMapBoxMapProps){
     const markers = useMemo(() => {
-        console.log("markers", props.markerData);
         return props.markerData.map((marker: MarkerData, index) => {
             return (
                 <Marker 

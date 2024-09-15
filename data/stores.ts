@@ -1,5 +1,5 @@
 import { CrimeDataGraph } from '@/lib/schemas/CDE';
-import { GraphParamterData } from '@/app/map/components/graph-picker-pie';
+import { GraphParamterData } from '@/app/map/components/graphs/graph-picker-pie';
 import {create} from 'zustand';
 export type ArrestData = {
     offense: string;

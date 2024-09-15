@@ -36,10 +36,10 @@ import {
 import { CrimeDataGraph, MarkerData } from "@/lib/schemas/CDE"
 import { useRef, useState, useTransition } from "react"
 import ReactMapBoxMap from "@/components/myui/map-box-react"
-import GraphPanel from "./graph-panel"
-import GraphPickerPie from "./graph-picker-pie"
+import GraphPanel from "./graphs/graph-panel"
+import GraphPickerPie from "./graphs/graph-picker-pie"
 import QueryParametersPanel from "./query-parameters-component"
-import GraphPicker from "./graph-picker"
+import GraphPicker from "./graphs/graph-picker"
 import { toPng } from "html-to-image"
 export default function QueryDashboard() {
   const printRef = useRef(null);

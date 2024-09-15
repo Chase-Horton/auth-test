@@ -7,7 +7,7 @@ import { CrimeDataGraph } from "@/lib/schemas/CDE"
 import { GraphParameters } from "./graph-picker-pie";
 import { ArrestData, useGraphDataStore } from "@/data/stores";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 interface ChartDataItem {
     year: string;
     [key: string]: string | number
@@ -445,36 +445,51 @@ interface GraphPanelProps {
     graphData: CrimeDataGraph[];
 }
 export default function GraphPanel(props: GraphPanelProps) {
+    const [chartData, setChartData] = useState<ChartDataItem[]>([]);
+    const [chartConfig, setChartConfig] = useState<ChartConfig>({});
+    const [chartLabels, setChartLabels] = useState<string[]>([]);
+    
     const graphData = props.graphData;
     const graphParameterData = useGraphDataStore((state) => state.graphParameterData);
-    const chartLabels = graphData.map((data) => data.crime.toLocaleLowerCase());
-    const chartValues = graphData.map((data) => data.data);
-    const chartConfig: ChartConfig = {};
-    for (let i = 0; i < chartLabels.length; i++) {
-        chartConfig[chartLabels[i]] = {
-            label: chartLabels[i].split("-").join(" "),
-            color: COLORS[i % COLORS.length]
+
+    useEffect(() => {
+        const labels = graphData.map((data) => data.crime.toLocaleLowerCase());
+        const values = graphData.map((data) => data.data);
+        const config: ChartConfig = {};
+        
+        for (let i = 0; i < labels.length; i++) {
+            config[labels[i]] = {
+                label: labels[i].split("-").join(" "),
+                color: COLORS[i % COLORS.length]
+            };
         }
-    }
-    const chartData: ChartDataItem[] = [];
-    //for each year, append the data of each crime to the chartData array
-    const listOfPieItems = ["pie", "radar", "donut", "radialBar", "barMixed"];
-    if (chartValues.length === 0 && !listOfPieItems.includes(graphParameterData.graphType)) return null;
-    if (!listOfPieItems.includes(graphParameterData.graphType)) {
-        for (let i = 0; i < chartValues[0].length; i++) {
-            const data: ChartDataItem = { "year": chartValues[0][i].year.toString() };
-            for (let j = 0; j < chartLabels.length; j++) {
-                data[chartLabels[j]] = chartValues[j][i].value;
+
+        const data: ChartDataItem[] = [];
+        const listOfPieItems = ["pie", "radar", "donut", "radialBar", "barMixed"];
+        if (values.length !== 0 && !listOfPieItems.includes(graphParameterData.graphType)) {
+            for (let i = 0; i < values[0].length; i++) {
+                const dataItem: ChartDataItem = { "year": values[0][i].year.toString() };
+                for (let j = 0; j < labels.length; j++) {
+                    dataItem[labels[j]] = values[j][i].value;
+                }
+                data.push(dataItem);
             }
-            chartData.push(data);
         }
-    }
-    const averages: Average = {};
-    chartLabels.forEach((label) => {
-        averages[label] = chartData.reduce((acc, data) => acc + Number(data[label]), 0) / chartData.length;
-    })
-    //sort the labels by the average value
-    chartLabels.sort((a, b) => averages[b] - averages[a]);
+
+        const averages: Average = {};
+        labels.forEach((label) => {
+            averages[label] = data.reduce((acc, data) => acc + Number(data[label]), 0) / data.length;
+        });
+
+        labels.sort((a, b) => averages[b] - averages[a]);
+        
+        // Set state after processing to minimize re-renders
+        setChartLabels(labels);
+        setChartConfig(config);
+        setChartData(data);
+    }, [graphData, graphParameterData]);
+
+    if (chartData.length === 0 && !["pie", "radar", "donut", "radialBar", "barMixed"].includes(graphParameterData.graphType)) return null;
     return (
         <div className="w-full h-full rounded-lg flex justify-center items-center p-0">
             {graphParameterData.graphType === "bar" && <BarChartComponent chartData={chartData} chartConfig={chartConfig} chartLabels={chartLabels} params={graphParameterData.allGraphParameters[0]} />}

@@ -95,16 +95,16 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
             let currentArrestDataFrom = arrestDataFrom;
             let currentArrestDataTo = arrestDataTo;
             let newData = [...props.data];
-            if (submitterAction === "add-graph") {
-                if (arrestDataFrom > formData.from || arrestDataTo < formData.to) {
-                    const arrestDataYears = await GetNationalArrestsByOffenseAll(formData);
-                    setArrestData(arrestDataYears);
-                    currentArrestData = arrestDataYears;
-                }
-                currentArrestDataFrom = formData.from;
-                currentArrestDataTo = formData.to;
+            if (currentArrestData.length === 0 || currentArrestDataFrom > formData.from || currentArrestDataTo < formData.to) {
+                const arrestDataYears = await GetNationalArrestsByOffenseAll(formData);
+                setArrestData(arrestDataYears);
+                currentArrestData = arrestDataYears;
                 setArrestDataFrom(formData.from);
                 setArrestDataTo(formData.to);
+                currentArrestDataFrom = formData.from;
+                currentArrestDataTo = formData.to;
+            }
+            if (submitterAction === "add-graph") {
                 //map the current arrest data to new dataobject
                 const nodes: CrimeDataGraph[] = [];
                 for (let x = 0; x < props.data.length; x++) {
@@ -118,13 +118,6 @@ export default function GetNationalArrestsForm(props: NationalArrestsProps) {
                     nodes.push({ crime: props.data[x].crime, data: node });
                 }
                 newData = nodes;
-            }
-            if (currentArrestData.length === 0 || currentArrestDataFrom > formData.from || currentArrestDataTo < formData.to) {
-                const arrestDataYears = await GetNationalArrestsByOffenseAll(formData);
-                setArrestData(arrestDataYears);
-                currentArrestData = arrestDataYears;
-                setArrestDataFrom(formData.from);
-                setArrestDataTo(formData.to);
             }
 
             for (let i = 0; i < currentArrestData.length; i++) {

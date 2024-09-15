@@ -110,8 +110,6 @@ export default function GetAgenciesForm(props: AgencyFormProps) {
       const agencies = await GetAgenciesByStateCode(data);
       const markers:MarkerData[] = [];
       agencies.forEach((agency) => {
-        console.log(agency.agency_name, agency.ori);
-        console.log(agency.latitude, agency.longitude);
         if(agency.latitude != null && agency.longitude != null) {
           markers.push({
             latitude: parseFloat(agency.latitude),

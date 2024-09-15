@@ -194,67 +194,32 @@ function AreaChartComponent(props: GraphComponentProps) {
 type ArrestDataChart = ArrestData & { fill: string }
 //will use props eventually
 //eslint-disable-next-line
-function PieChartComponent(_props: { showLegend: boolean }) {
+function PieChartComponent({ showLegend }: { showLegend: boolean }) {
     const { title, subtitle } = useGraphDataStore((state) => state.pieChartGraphTitleObj);
-    const chartData: ArrestDataChart[] = [];
-    const chartConfig: ChartConfig = {};
     const pieChartData = useGraphDataStore((state) => state.pieChartData);
-    const pieChartDataMemoized = useMemo(() => pieChartData, [pieChartData]);
-    const chartLabels = pieChartDataMemoized.map((data) => data.offense);
-    for (let i = 0; i < pieChartDataMemoized.length; i++) {
-        chartData.push({
-            ...pieChartDataMemoized[i],
-            fill: COLORS[i % COLORS.length]
-        });
-        chartConfig[pieChartDataMemoized[i].offense] = {
-            label: pieChartDataMemoized[i].offense,
-            color: COLORS[i % COLORS.length]
+    const [chartConfig, setChartConfig] = useState<ChartConfig>({});
+    const [chartData, setChartData] = useState<ArrestDataChart[]>([]);
+
+    useEffect(() => {
+        const pieChartDataMemoized = pieChartData.map(data => ({
+            ...data,
+            fill: COLORS[pieChartData.indexOf(data) % COLORS.length]
+        }));
+
+        const newChartConfig: ChartConfig = {};
+        const newChartData: ArrestDataChart[] = [];
+
+        for (let i = 0; i < pieChartDataMemoized.length; i++) {
+            newChartConfig[pieChartDataMemoized[i].offense] = {
+                label: pieChartDataMemoized[i].offense,
+                color: COLORS[i % COLORS.length]
+            };
+            newChartData.push(pieChartDataMemoized[i]);
         }
-    }
-    return (
-        <div className="min-h-[200px] h-full w-full flex flex-col">
-        <CardHeader>
-            <CardTitle>{title}</CardTitle>
-            <CardDescription>{subtitle}</CardDescription>
-        </CardHeader>
-        <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-            <PieChart data={chartData}
-                margin={{
-                    left: 12,
-                    right: 12,
-                }}
-            >
-                <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                {chartLabels.map((_label, index) => (
-                    <Pie
-                        data={chartData}
-                        key={index}
-                        dataKey={"arrests"}
-                        nameKey={"offense"}
-                        strokeOpacity={1}
-                        fillOpacity={1}
-                        opacity={0.8}
-                    />
-                ))}
-            </PieChart>
-        </ChartContainer>
-        </div>
-    )
-}
-//will use props eventually
-//eslint-disable-next-line
-function RadarChartComponent(_props: { showLegend: boolean }) {
-    const chartData: ArrestData[] = [];
-    const chartConfig: ChartConfig = {};
-    const { title, subtitle } = useGraphDataStore((state) => state.pieChartGraphTitleObj);
-    const pieChartData = useGraphDataStore((state) => state.pieChartData);
-    for (let i = 0; i < pieChartData.length; i++) {
-        chartData.push({ ...pieChartData[i], });
-    }
-    chartConfig.offense = {
-        label: "arrests",
-        color: COLORS[0]
-    }
+
+        setChartConfig(newChartConfig);
+        setChartData(newChartData);
+    }, [pieChartData]);
 
     return (
         <div className="min-h-[200px] h-full w-full flex flex-col">
@@ -262,145 +227,51 @@ function RadarChartComponent(_props: { showLegend: boolean }) {
                 <CardTitle>{title}</CardTitle>
                 <CardDescription>{subtitle}</CardDescription>
             </CardHeader>
-        <ChartContainer config={chartConfig} className="min-h-[200px] h-full w-full">
-            <RadarChart data={chartData}
-                margin={{
-                    left: 12,
-                    right: 12,
-                }}
-            >
-                <ChartTooltip cursor={false} content={<ChartTooltipContent nameKey="offense" />} />
-                <PolarAngleAxis dataKey="offense" />
-                <PolarGrid />
-                <Radar
-                    dataKey="arrests"
-                    fill={COLORS[0]}
-                    fillOpacity={0.6}
-                />
-            </RadarChart>
-        </ChartContainer>
-        </div>
-    )
-}
-//will use props eventually
-//eslint-disable-next-line
-function DonutChartComponent(_props: { showLegend: boolean }) {
-    const { title, subtitle } = useGraphDataStore((state) => state.pieChartGraphTitleObj);
-    const chartData: ArrestDataChart[] = [];
-    const chartConfig: ChartConfig = {};
-    const pieChartData = useGraphDataStore((state) => state.pieChartData);
-    const pieChartDataMemoized = useMemo(() => pieChartData, [pieChartData]);
-    const chartLabels = pieChartDataMemoized.map((data) => data.offense);
-    for (let i = 0; i < pieChartDataMemoized.length; i++) {
-        chartData.push({
-            ...pieChartDataMemoized[i],
-            fill: COLORS[i % COLORS.length]
-        });
-        chartConfig[pieChartDataMemoized[i].offense] = {
-            label: pieChartDataMemoized[i].offense,
-            color: COLORS[i % COLORS.length]
-        }
-    }
-    return (
-        <div className="min-h-[200px] h-full w-full flex flex-col">
-        <CardHeader>
-            <CardTitle>{title}</CardTitle>
-            <CardDescription>{subtitle}</CardDescription>
-        </CardHeader>
-        <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-            <PieChart data={chartData}
-                margin={{
-                    left: 12,
-                    right: 12,
-                }}
-            >
-                <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                {chartLabels.map((_label, index) => (
-                    <Pie
-                        data={chartData}
-                        key={index}
-                        dataKey={"arrests"}
-                        nameKey={"offense"}
-                        strokeOpacity={1}
-                        fillOpacity={1}
-                        opacity={0.8}
-                        innerRadius={70}
-                    />
-                ))}
-            </PieChart>
-        </ChartContainer>
-        </div>
-    )
-}
-//will use props eventually
-//eslint-disable-next-line
-function RadialBarChartComponent(_props: { showLegend: boolean }) {
-    const { title, subtitle } = useGraphDataStore((state) => state.pieChartGraphTitleObj);
-    const chartData: ArrestDataChart[] = [];
-    const chartConfig: ChartConfig = {};
-    const pieChartData = useGraphDataStore((state) => state.pieChartData);
-    const sortedPieChartData = pieChartData.sort((a, b) => b.arrests - a.arrests);
-    for (let i = 0; i < sortedPieChartData.length; i++) {
-        chartData.push({
-            ...sortedPieChartData[i],
-            fill: COLORS[i % COLORS.length]
-        });
-        chartConfig[sortedPieChartData[i].offense] = {
-            label: sortedPieChartData[i].offense,
-            color: COLORS[i % COLORS.length]
-        }
-    }
-    return (
-        <div className="min-h-[200px] h-full w-full flex flex-col">
-        <CardHeader>
-            <CardTitle>{title}</CardTitle>
-            <CardDescription>{subtitle}</CardDescription>
-        </CardHeader>
-        <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-            <RadialBarChart data={chartData}
-                margin={{
-                    left: 12,
-                    right: 12,
-                }}
-                innerRadius={"20%"}
-                outerRadius={"100%"}
-                startAngle={90}
-                endAngle={-270}
-            >
-                <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel nameKey="offense"/>} />
-                <RadialBar
-                    dataKey="arrests"
-                    background 
+            <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+                <PieChart data={chartData}
+                    margin={{
+                        left: 12,
+                        right: 12,
+                    }}
                 >
-                     <LabelList
-                position="insideStart"
-                dataKey="offense"
-                className="fill-white capitalize mix-blend-luminosity"
-                fontSize={15}
-              />
-                </RadialBar>
-            </RadialBarChart>
-        </ChartContainer>
+                    <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                    {chartData.map((_data, index) => (
+                        <Pie
+                            data={chartData}
+                            key={index}
+                            dataKey={"arrests"}
+                            nameKey={"offense"}
+                            strokeOpacity={1}
+                            fillOpacity={1}
+                            opacity={0.8}
+                        />
+                    ))}
+                </PieChart>
+            </ChartContainer>
         </div>
-    )
+    );
 }
+
 //will use props eventually
 //eslint-disable-next-line
-function BarChartMixedComponent(_props: { showLegend: boolean }) {
-    const chartData: ArrestDataChart[] = [];
-    const chartConfig: ChartConfig = { arrests: { label: "arrests" } };
-    const pieChartData = useGraphDataStore((state) => state.pieChartData);
+function RadarChartComponent({ showLegend }: { showLegend: boolean }) {
+    const [chartData, setChartData] = useState<ArrestData[]>([]);
+    const [chartConfig, setChartConfig] = useState<ChartConfig>({});
     const { title, subtitle } = useGraphDataStore((state) => state.pieChartGraphTitleObj);
-    for (let i = 0; i < pieChartData.length; i++) {
-        chartData.push({
-            ...pieChartData[i],
-            fill: COLORS[i % COLORS.length]
-        });
-        chartConfig[pieChartData[i].offense] = {
-            label: pieChartData[i].offense,
-            color: COLORS[i % COLORS.length]
-        }
-    }
+    const pieChartData = useGraphDataStore((state) => state.pieChartData);
+
+    useEffect(() => {
+        const newChartData = pieChartData.map(data => ({ ...data }));
+        const newChartConfig = {
+            offense: {
+                label: "arrests",
+                color: COLORS[0]
+            }
+        };
+        setChartConfig(newChartConfig);
+        setChartData(newChartData);
+    }, [pieChartData]);
+
     return (
         <div className="min-h-[200px] h-full w-full flex flex-col">
             <CardHeader>
@@ -408,7 +279,189 @@ function BarChartMixedComponent(_props: { showLegend: boolean }) {
                 <CardDescription>{subtitle}</CardDescription>
             </CardHeader>
             <ChartContainer config={chartConfig} className="min-h-[200px] h-full w-full">
-                <BarChart data={chartData}
+                <RadarChart
+                    data={chartData}
+                    margin={{
+                        left: 12,
+                        right: 12,
+                    }}
+                >
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent nameKey="offense" />} />
+                    <PolarAngleAxis dataKey="offense" />
+                    <PolarGrid />
+                    <Radar dataKey="arrests" fill={COLORS[0]} fillOpacity={0.6} />
+                </RadarChart>
+            </ChartContainer>
+        </div>
+    )
+}
+
+//will use props eventually
+//eslint-disable-next-line
+function DonutChartComponent({ showLegend }: { showLegend: boolean }) {
+    const [chartData, setChartData] = useState<ArrestDataChart[]>([]);
+    const [chartConfig, setChartConfig] = useState<ChartConfig>({});
+    const { title, subtitle } = useGraphDataStore((state) => state.pieChartGraphTitleObj);
+    const pieChartData = useGraphDataStore((state) => state.pieChartData);
+
+    const pieChartDataMemoized = useMemo(() => pieChartData.map(data => ({
+        ...data,
+        fill: COLORS[pieChartData.indexOf(data) % COLORS.length]
+    })), [pieChartData]);
+
+    useEffect(() => {
+        const newChartConfig:ChartConfig = {};
+        const newChartData: ArrestDataChart[] = [];
+
+        pieChartDataMemoized.forEach((data, index) => {
+            newChartConfig[data.offense] = {
+                label: data.offense,
+                color: COLORS[index % COLORS.length]
+            };
+            newChartData.push(data);
+        });
+
+        setChartConfig(newChartConfig);
+        setChartData(newChartData);
+    }, [pieChartDataMemoized]);
+
+    const chartLabels = pieChartDataMemoized.map((data) => data.offense);
+
+    return (
+        <div className="min-h-[200px] h-full w-full flex flex-col">
+            <CardHeader>
+                <CardTitle>{title}</CardTitle>
+                <CardDescription>{subtitle}</CardDescription>
+            </CardHeader>
+            <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+                <PieChart data={chartData}
+                    margin={{
+                        left: 12,
+                        right: 12,
+                    }}
+                >
+                    <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                    {chartLabels.map((_label, index) => (
+                        <Pie
+                            data={chartData}
+                            key={index}
+                            dataKey={"arrests"}
+                            nameKey={"offense"}
+                            strokeOpacity={1}
+                            fillOpacity={1}
+                            opacity={0.8}
+                            innerRadius={70}
+                        />
+                    ))}
+                </PieChart>
+            </ChartContainer>
+        </div>
+    )
+}
+//will use props eventually
+//eslint-disable-next-line
+function RadialBarChartComponent({ showLegend }: { showLegend: boolean }) {
+    const [chartData, setChartData] = useState<ArrestDataChart[]>([]);
+    const [chartConfig, setChartConfig] = useState<ChartConfig>({});
+    const { title, subtitle } = useGraphDataStore((state) => state.pieChartGraphTitleObj);
+    const pieChartData = useGraphDataStore((state) => state.pieChartData);
+
+    const sortedPieChartDataMemoized = useMemo(() => {
+        return pieChartData.slice().sort((a, b) => b.arrests - a.arrests);
+    }, [pieChartData]);
+
+    useEffect(() => {
+        const newChartConfig: ChartConfig = {};
+        const newChartData: ArrestDataChart[] = [];
+
+        for (let i = 0; i < sortedPieChartDataMemoized.length; i++) {
+            newChartConfig[sortedPieChartDataMemoized[i].offense] = {
+                label: sortedPieChartDataMemoized[i].offense,
+                color: COLORS[i % COLORS.length]
+            };
+            newChartData.push({
+                ...sortedPieChartDataMemoized[i],
+                fill: COLORS[i % COLORS.length]
+            });
+        }
+
+        setChartConfig(newChartConfig);
+        setChartData(newChartData);
+    }, [sortedPieChartDataMemoized]);
+
+    return (
+        <div className="min-h-[200px] h-full w-full flex flex-col">
+            <CardHeader>
+                <CardTitle>{title}</CardTitle>
+                <CardDescription>{subtitle}</CardDescription>
+            </CardHeader>
+            <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+                <RadialBarChart
+                    data={chartData}
+                    margin={{
+                        left: 12,
+                        right: 12,
+                    }}
+                    innerRadius={"20%"}
+                    outerRadius={"100%"}
+                    startAngle={90}
+                    endAngle={-270}
+                >
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel nameKey="offense" />} />
+                    <RadialBar dataKey="arrests" background>
+                        <LabelList
+                            position="insideStart"
+                            dataKey="offense"
+                            className="fill-white capitalize mix-blend-luminosity"
+                            fontSize={15}
+                        />
+                    </RadialBar>
+                </RadialBarChart>
+            </ChartContainer>
+        </div>
+    )
+}
+//will use props eventually
+//eslint-disable-next-line
+function BarChartMixedComponent({ showLegend }: { showLegend: boolean }) {
+    const [chartData, setChartData] = useState<ArrestDataChart[]>([]);
+    const [chartConfig, setChartConfig] = useState<ChartConfig>({ arrests: { label: "arrests" } });
+    const pieChartData = useGraphDataStore((state) => state.pieChartData);
+    const { title, subtitle } = useGraphDataStore((state) => state.pieChartGraphTitleObj);
+
+    const pieChartDataMemoized = useMemo(() => pieChartData.map(data => ({
+        ...data,
+        fill: COLORS[pieChartData.indexOf(data) % COLORS.length]
+    })), [pieChartData]);
+
+    useEffect(() => {
+        const newChartConfig: ChartConfig = { arrests: { label: "arrests" } };
+        const newChartData: ArrestDataChart[] = [];
+
+        pieChartDataMemoized.forEach((data, index) => {
+            newChartConfig[data.offense] = {
+                label: data.offense,
+                color: COLORS[index % COLORS.length]
+            };
+            newChartData.push({
+                ...data,
+                fill: COLORS[index % COLORS.length]
+            });
+        });
+
+        setChartConfig(newChartConfig);
+        setChartData(newChartData);
+    }, [pieChartDataMemoized]);
+
+    return (
+        <div className="min-h-[200px] h-full w-full flex flex-col">
+            <CardHeader>
+                <CardTitle>{title}</CardTitle>
+                <CardDescription>{subtitle}</CardDescription>
+            </CardHeader>
+            <ChartContainer config={chartConfig} className="min-h-[200px] h-full w-full">
+                <BarChart
+                    data={chartData}
                     margin={{
                         left: 12,
                         right: 12,
@@ -426,10 +479,7 @@ function BarChartMixedComponent(_props: { showLegend: boolean }) {
                         fontSize={15}
                     />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar
-                        dataKey={"arrests"}
-                        radius={4}
-                    />
+                    <Bar dataKey={"arrests"} radius={4} />
                 </BarChart>
             </ChartContainer>
         </div>
@@ -483,7 +533,6 @@ export default function GraphPanel(props: GraphPanelProps) {
 
         labels.sort((a, b) => averages[b] - averages[a]);
         
-        // Set state after processing to minimize re-renders
         setChartLabels(labels);
         setChartConfig(config);
         setChartData(data);

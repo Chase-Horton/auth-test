@@ -303,9 +303,9 @@ export default function QueryDashboard() {
                             <PieChartIcon className="size-5" />
                             <div className="grid gap-0.5">
                               <p>
-                                arrests{" "}
+                                GET{" "}
                                 <span className="font-medium text-foreground">
-                                  by category
+                                  total arrests by category
                                 </span>
                               </p>
                               <p className="text-xs" data-description>

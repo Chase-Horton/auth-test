@@ -26,7 +26,7 @@ export const useArrestDataStore = create<allArrestDataStoreType>((set) => ({
     setFrom: (year:number) => set({from:year}),
     setTo: (year:number) => set({to:year}),
 }));
-type GraphTypeWhenSet = "estimates" | "arrests" | "arrestsCategories";
+type GraphTypeWhenSet = "estimates" | "estimates+" | "arrests" | "arrestsCategories";
 type GraphDataStoreType = {
     graphData: CrimeDataGraph[];
     setGraphData: (data:CrimeDataGraph[]) => void;

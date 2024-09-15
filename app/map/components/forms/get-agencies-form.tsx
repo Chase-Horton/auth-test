@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/popover"
 import { GetAgenciesByStateCode } from "@/actions/CDE";
 
-const STATES = [
+export const STATES = [
   { value: "AL", label: "Alabama" },
   { value: "AK", label: "Alaska" },
   { value: "AZ", label: "Arizona" },

@@ -1,6 +1,6 @@
 "use server"
 import { z } from "zod"
-import { ArrestCategory, cdeAgenciesResponse, GetAgencyByStateSchema, GetNationalArrestsByCategoryCodeSchema, GetNationalArrestsByCrimeSchema, GetNationalCrimeByCrimeSchema, NationalArrestByCategoryMapToOffenses, validArrestOffenseCodes } from "@/lib/schemas/CDE"
+import { ArrestCategory, cdeAgenciesResponse, GetAgencyByStateSchema, GetNationalArrestsByCategoryCodeSchema, GetNationalArrestsByCrimeSchema, GetNationalCrimeByCrimeSchema, GetNationalCrimeByStateSchema, NationalArrestByCategoryMapToOffenses, validArrestOffenseCodes } from "@/lib/schemas/CDE"
 import { ArrestData, ArrestDataYear } from "@/data/stores";
 
 export async function GetAgenciesByStateCode(values: z.infer<typeof GetAgencyByStateSchema>): Promise<cdeAgenciesResponse[]> {
@@ -22,6 +22,18 @@ export async function GetNationalCrimesByCrimeCode(values: z.infer<typeof GetNat
         return [];
     }
     const key = Object.keys(data)[0];
+    return data[key];
+}
+export async function GetNationalCrimesByCrimeCodeAndState(values: z.infer<typeof GetNationalCrimeByStateSchema>) {
+    const { stateCode, crime, from, to } = values;
+    const queryURL = `https://api.usa.gov/crime/fbi/cde/estimate/state/${stateCode}/${crime}?from=${from}&to=${to}&API_KEY=${process.env.CDE_API_KEY}`
+    const response = await fetch(queryURL);
+    const result = await response.json();
+    const data = result["results"]
+    if (data === undefined) {
+        return [];
+    }
+    let key = Object.keys(data)[0].includes("United States") ? Object.keys(data)[1] : Object.keys(data)[0];
     return data[key];
 }
 type NationalArrestNode = {

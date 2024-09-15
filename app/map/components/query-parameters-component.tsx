@@ -3,6 +3,8 @@ import GetAgenciesForm from "./forms/get-agencies-form";
 import GetNationalArrestsForm from "./forms/get-national-arrests-form";
 import GetNationalCrimeForm from "./forms/get-national-crime-form";
 import GetNationalArrestsByCategoryForm from "./forms/get-national-arrest-categories-form";
+import {AnimatePresence, motion} from "framer-motion";
+import GetNationalCrimeByStateForm from "./forms/get-national-crime-by-state-form";
 interface QueryParametersPanelProps {
     queryState: string;
     startTransition: (callback: () => void) => void;
@@ -14,11 +16,14 @@ interface QueryParametersPanelProps {
 export default function QueryParametersPanel(props: QueryParametersPanelProps) {
     const { queryState, startTransition, isPending, setMarkerData, setGraphData, graphData } = props;
     return (
-        <div>
+        <AnimatePresence>
+        <motion.div>
             {queryState == "selectAgency" && <GetAgenciesForm startTransition={startTransition} isPending={isPending} setData={setMarkerData}/> }
             {queryState == "selectNationalCrime" && <GetNationalCrimeForm startTransition={startTransition} isPending={isPending} setData={setGraphData} data={graphData}/> }
+            {queryState == "selectNationalCrimeByState" && <GetNationalCrimeByStateForm startTransition={startTransition} isPending={isPending} setData={setGraphData} data={graphData}/> }
             {queryState == "selectNationalArrests" && <GetNationalArrestsForm startTransition={startTransition} isPending={isPending} setData={setGraphData} data={graphData}/> }
             {queryState == "selectNationalArrestCategories" && <GetNationalArrestsByCategoryForm startTransition={startTransition} isPending={isPending} setData={setGraphData} /> }
-        </div>
+        </motion.div>
+        </AnimatePresence>
     )
 }

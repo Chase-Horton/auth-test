@@ -261,7 +261,23 @@ export default function QueryDashboard() {
                                 </span>
                               </p>
                               <p className="text-xs" data-description>
-                                  Get national yearly estimate by crime name for a year range.
+                                  Get national yearly estimates by crime name for a year range.
+                              </p>
+                            </div>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="selectNationalCrimeByState">
+                          <div className="flex items-start gap-3 text-muted-foreground">
+                            <LineChartIcon className="size-5" />
+                            <div className="grid gap-0.5">
+                              <p>
+                                GET{" "}
+                                <span className="font-medium text-foreground">
+                                  total estimates by state
+                                </span>
+                              </p>
+                              <p className="text-xs" data-description>
+                                  Get national yearly estimates for a crime by state name for a year range.
                               </p>
                             </div>
                           </div>
@@ -293,7 +309,7 @@ export default function QueryDashboard() {
             </div>
             <div ref={printRef} className="relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-0 lg:col-span-2">
               <Badge variant="outline" className="absolute right-3 top-3 z-10 bg-secondary">
-                {queryState ==="selectNationalCrime" ? "victims per 100k" : "output"}
+                {queryState ==="selectNationalCrime" || queryState === "selectNationalCrimeByState" ? "victims per 100k" : "output"}
               </Badge>
               {queryState == "selectAgency" &&<ReactMapBoxMap markerData={data} />}
               {queryState != "selectAgency" && <GraphPanel graphData={graphData} />}

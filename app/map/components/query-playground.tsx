@@ -1,25 +1,12 @@
 "use client"
 import {
-  Bird,
-  Rabbit,
-  Settings,
   Share,
-  Turtle,
   MapIcon,
   LineChartIcon,
   PieChartIcon,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -28,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
 import {
   TooltipProvider,
 } from "@/components/ui/tooltip"

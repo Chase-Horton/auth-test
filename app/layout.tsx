@@ -32,13 +32,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
           {children}
-          <Toaster />
+          <div className="hidden md:flex">
+            <Toaster />
+          </div>
           <Analytics />
           <SpeedInsights />
         </ThemeProvider>
